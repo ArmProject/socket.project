@@ -1,0 +1,13 @@
+{
+  "name": "socket",
+  "dependencies": {
+      "jquery": "2.0.x",
+      "angular": "1.x.x", 
+      "bootstrap": "3.x.x",
+      "underscore": "1.x.x",
+      "restangular": "1.x.x",
+      "socket.io": "http://localhost:8080/socket.io/socket.io.js",
+      "kineticjs": "http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.6.0.min.js",
+      "angular-emoji": "http://github.com/globaldev/angular-emoji-filter"
+  }
+}
