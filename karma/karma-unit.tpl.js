@@ -1,9 +1,9 @@
 module.exports = function ( karma ) {
-  karma.configure({
+  karma.set({
     /** 
      * From where to look for files, starting with the location of this file.
      */
-    basePath: '../',
+    basePath: '/',
 
     /**
      * This is the list of file patterns to load into the browser during testing.
@@ -12,11 +12,13 @@ module.exports = function ( karma ) {
       <% scripts.forEach( function ( file ) { %>'<%= file %>',
       <% }); %>
       'src/**/*.js',
-      'src/**/*.coffee',
     ],
 
-    frameworks: [ 'jasmine' ],
-    plugins: [ 'karma-jasmine', 'karma-firefox-launcher', 'karma-chrome-launcher', 'karma-coffee-preprocessor' ],
+    exclude: [
+      'src/server/**/*.js'
+    ],
+    plugins: ['karma-ng-scenario', 'karma-jasmine', 'karma-chrome-launcher','karma-html2js-preprocessor'],
+    frameworks: [ 'ng-scenario'],
     preprocessors: {
       '**/*.coffee': 'coffee',
     },
@@ -30,10 +32,12 @@ module.exports = function ( karma ) {
      * On which port should the browser connect, on which port is the test runner
      * operating, and what is the URL path for the browser to use.
      */
-    port: 9018,
+    port: 9876,
     runnerPort: 9100,
-    urlRoot: '/',
-
+    // proxies: {
+    //   '/': 'http://localhost:9876/'
+    // },
+    // urlRoot: '__karma__',
     /** 
      * Disable file watching by default.
      */
@@ -53,9 +57,9 @@ module.exports = function ( karma ) {
      * the aesthetic advantage of not launching a browser every time you save.
      */
      
-   /* browsers: [
-      'Firefox'
-    ]*/
+    // browsers: [
+    //   'Firefox'
+    // ]
   });
 };
 

@@ -5,23 +5,25 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 			text: '@',
 			tool: '@'
 		},
-		link: function($scope, $attrs, $element) {
+		link: function(scope, iAttr, iElement) {
 			var typePos = "pos";
-			DrawManager.init($element.id);
+			DrawManager.init(iElement.id);
+
+			function addGroup(id) {
+				if (Room.users.indexOf(id) == -1) {
+					Room.users.push(id);
+					DrawManager.newGroup(id);
+				}
+			}
 
 			function draw(data) {
 				var pos = data.pos;
 				if (data.id) {
-					if (Room.users.indexOf(data.id) == -1) {
-						Room.users.push(data.id);
-						DrawManager.newGroup(data.id);
-					}
-				} else {
-					if (pos.isSeed) {
-						DrawManager.newGroup();
-					}
+					addGroup(data.id);
 				}
-				DrawManager.setCurrent(data.id);
+				if (pos.isSeed) {
+					DrawManager.setCurrent(data.id);
+				}
 				DrawManager.setStrokeColor(pos.color);
 				DrawManager.setStrokeSize(pos.size);
 				DrawManager.drawBrush(pos.x, pos.y, pos.isSeed);
@@ -30,16 +32,11 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 			function line(data) {
 				var pos = data.pos;
 				if (data.id) {
-					if (Room.users.indexOf(data.id) == -1) {
-						Room.users.push(data.id);
-						DrawManager.newGroup(data.id);
-					}
-				} else {
-					if (pos.isSeed) {
-						DrawManager.newGroup();
-					}
+					addGroup(data.id);
 				}
-				DrawManager.setCurrent(data.id);
+				if (pos.isSeed) {
+					DrawManager.setCurrent(data.id);
+				}
 				DrawManager.setStrokeColor(pos.color);
 				DrawManager.setStrokeSize(pos.size);
 				DrawManager.drawLine(pos.x, pos.y, pos.isSeed);
@@ -53,6 +50,15 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				DrawManager.setFillColor(pos.color);
 				DrawManager.setFontSize(pos.size);
 				DrawManager.drawText(pos.text, pos.x, pos.y);
+			}
+
+			function drag(data) {
+				var pos = data.pos;
+				if (data.id) {
+					addGroup(data.id);
+				}
+				DrawManager.setCurrent(data.id);
+				DrawManager.setCurrentPosition(data.n, pos.x, pos.y);
 			}
 
 			var strokeColor, fillColor, strokeSize, fontSize;
@@ -73,6 +79,9 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 					case DrawFactory.tools.TEXT:
 						text(data);
 						break;
+					case DrawFactory.tools.DRAG_OBJECT:
+						drag(data);
+						break;
 				}
 				if (data.pos.isUp) {
 					DrawManager.setStrokeColor(strokeColor);
@@ -80,15 +89,15 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 					DrawManager.setStrokeSize(strokeSize);
 					DrawManager.setFontSize(fontSize);
 				}
-				if ($scope.tool == DrawFactory.tools.DRAG) {
-					DrawManager.canGroupDrag(canDrag);
+				if (scope.tool == DrawFactory.tools.DRAG_GROUP) {
+					DrawManager.canGroupDrag(true);
 				}
 			});
 
 			Input.init(function() {
 				var obj = {};
 				obj.pos = {
-					text: $scope.text,
+					text: scope.text,
 					x: pos.x,
 					y: pos.y
 				};
@@ -108,7 +117,13 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				DrawFactory.setAnimate(data, draw);
 			});
 
-
+			DrawFactory.setDragObject(function(data) {
+				var obj = {};
+				obj.pos = data.getPosition();
+				obj.n = data.getId();
+				obj.type = DrawFactory.tools.DRAG_OBJECT;
+				DataManager.setData(typePos, obj);
+			});
 			DrawFactory.setText(function(data) {
 				pos = data;
 				Input.show(pos.x, pos.y);
@@ -139,9 +154,9 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				}
 			});
 
-			$scope.$watch('tool', function() {
+			scope.$watch('tool', function() {
 				Input.hide();
-				DrawFactory.setTool($scope.tool);
+				DrawFactory.setTool(scope.tool);
 			});
 			$rootScope.$on('attr', function(e, attr) {
 				var callback = {};

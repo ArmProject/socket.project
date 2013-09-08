@@ -50,11 +50,12 @@ module.exports = {
   vendor_files: {
     js: [
       'vendor/socket.io/index.js',
+      'vendor/kineticjs/index.js',
       'vendor/jquery/jquery.min.js',
+      'vendor/fabric/dist/all.min.js',
       'vendor/angular/angular.min.js',
       'vendor/bootstrap/dist/js/bootstrap.min.js',
       'vendor/bootstrap/dist/css/bootstrap.min.css',
-      'vendor/kineticjs/index.js',
       'vendor/underscore/underscore-min.js',
       'vendor/restangular/dist/restangular.min.js'
     ],

@@ -11,6 +11,9 @@ app.config(['$routeProvider',
 		}).when('/home', {
 			templateUrl: 'home.tpl.html',
 			controller: 'HomeCtrl'
+		}).when('/slide', {
+			templateUrl: 'slide.tpl.html',
+			controller: 'SlideCtrl'
 		}).otherwise({
 			redirectTo: '/draw'
 		});
@@ -57,19 +60,33 @@ app.factory("Room", function() {
 app.factory("DataManager", function(Canvas, Socket) {
 
 	return {
+		types: {
+			POS: "pos"
+		},
 		setData: function(type, data) {
-			data.pos.x /= Canvas.width;
-			data.pos.y /= Canvas.height;
+			if (data.pos) {
+				data.pos.x /= Canvas.width;
+				data.pos.y /= Canvas.height;
+			}
 			Socket.emit("send:" + type, data);
 		},
 		getData: function(type, callback) {
 			Socket.remove("send:" + type);
-			Socket.on("send:" + type, function(data) {
-				data.pos.x *= Canvas.width;
-				data.pos.y *= Canvas.height;
-				callback(data);
-			});
+			switch (type) {
+				case "pos":
+					Socket.on("send:" + type, function(data) {
+						data.pos.x *= Canvas.width;
+						data.pos.y *= Canvas.height;
+						callback(data);
+					});
+					break;
+				case "slide":
+					Socket.on("send:" + type, function(data) {
 
+						callback(data);
+					});
+					break;
+			}
 
 		},
 		loadData: function(type, data, callback) {
@@ -85,29 +102,42 @@ app.factory("DataManager", function(Canvas, Socket) {
 				});
 				callback(obj);
 			});
+		},
+		removeData: function() {
+
 		}
 	};
 });
 
 
-app.service("Canvas", function($rootScope) {
+app.service("Canvas", function($q) {
 	var self = this;
 	var stage;
 	var obj = {};
+	var deferred = $q.defer();
 	this.init = function(id) {
+		deferred = $q.defer();
 		var cs = $("#" + id);
-		var container = cs.parent();
-		self.canvas = cs;
-		self.width = container.width();
-		self.height = container.height();
-		stage = new Kinetic.Stage({
-			container: id,
-			width: self.width,
-			height: self.height
-		});
-		return stage;
+		if (cs) {
+			var container = cs.parent();
+			self.canvas = cs;
+			self.width = container.width();
+			self.height = container.height();
+			stage = new Kinetic.Stage({
+				container: id,
+				width: self.width,
+				height: self.height
+			});
+		}
+		deferred.resolve(stage);
+		// return stage;
 	};
-
+	this.getCurrent = function() {
+		if (stage && !deferred.promise) {
+			deferred.resolve(stage);
+		}
+		return deferred.promise;
+	}
 	this.getPosition = function() {
 		var mousePos = stage.getMousePosition();
 		var touchPos = stage.getTouchPosition();

@@ -72,9 +72,13 @@ var logger = new Logger();
 
 io.sockets.on('connection', function(socket) {
 
+	function getId() {
+		return socket.id;
+	}
+
 	function loginUser(room, user) {
 		socket.join(room);
-		logger.logUser(room, socket.id, user);
+		logger.logUser(room, getId(), user);
 		socket.set('userName', user);
 
 		console.log("User : '" + user + "' join Room : '" + room + "'")
@@ -98,7 +102,7 @@ io.sockets.on('connection', function(socket) {
 				logger.init(data.room);
 			}
 			loginUser(data.room, data.user);
-			callback(socket.id);
+			callback(getId());
 		}
 	});
 	socket.on('create:room', function(data) {
@@ -124,12 +128,24 @@ io.sockets.on('connection', function(socket) {
 			}
 		});
 	});
+	socket.on('leave:room', function() {
+		socket.get('roomName', function(err, room) {
+			if (room != null) {
+				socket.get('userName', function(err, user) {
+					console.log("User : " + user + " disconnect");
+					socket.leave(room)
+					socket.broadcast.to(room).emit('leave:room', getId());
+				});
+			}
+		});
+	});
 	socket.on('disconnect', function() {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
 				socket.get('userName', function(err, user) {
 					console.log("User : " + user + " disconnect");
 					socket.leave(room)
+					socket.broadcast.to(room).emit('leave:room', getId());
 				});
 			}
 		});
@@ -144,7 +160,7 @@ io.sockets.on('connection', function(socket) {
 				}
 				logger.logPos(room, data.pos);
 
-				data.id = socket.id;
+				data.id = getId();
 				socket.broadcast.to(room).emit('send:pos', data);
 			}
 		});
@@ -156,18 +172,16 @@ io.sockets.on('connection', function(socket) {
 			var json = logger.load(data.room);
 			var pos = JSON.parse(json).pos;
 
-			// console.log("Send Pos Back")
-			// console.log(pos)
 			callback(pos);
 		} catch (e) {
-			console.log(e.message);
+			// console.log(e.message);
 		}
 	});
 
 	// socket.on('send:text', function(data) {
 	// 	socket.get('roomName', function(err, room) {
 	// 		if (room != null) {
-	// 			data.id = socket.id;
+	// 			data.id = getId();
 	// 			socket.broadcast.to(room).emit('send:text', data);
 	// 			console.log("Send text : " + data.pos.text)
 	// 		}
@@ -180,7 +194,16 @@ io.sockets.on('connection', function(socket) {
 			if (room != null) {
 				io.sockets. in (room).emit('send:msg', data.msg);
 				logger.logMsg(room, data.msg);
-				console.log("Send msg : " + data.msg)
+				console.log("Send msg : " + data.msg);
+			}
+		});
+	});
+
+	socket.on('send:slide', function(data) {
+		socket.get('roomName', function(err, room) {
+			if (room != null) {
+				io.sockets. in (room).emit('send:slide', data);
+				console.log("Send slide : " + data.url + data.index);
 			}
 		});
 	});
