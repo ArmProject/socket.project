@@ -5,41 +5,47 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 			text: '@',
 			tool: '@'
 		},
-		link: function(scope, iAttr, iElement) {
+		link: function(scope, iElement, iAttr) {
 			var typePos = "pos";
-			DrawManager.init(iElement.id);
+			var id = iAttr.id;
+			DrawManager.init(id);
 
 			function addGroup(id) {
-				if (Room.users.indexOf(id) == -1) {
+				if (id && Room.users.indexOf(id) == -1) {
 					Room.users.push(id);
 					DrawManager.newGroup(id);
 				}
 			}
 
 			function draw(data) {
+				var id = data.id;
+				addGroup(id)
+				DrawManager.setCurrent(id)
+
 				var pos = data.pos;
-				if (data.id) {
-					addGroup(data.id);
-				}
-				if (pos.isSeed) {
-					DrawManager.setCurrent(data.id);
-				}
-				DrawManager.setStrokeColor(pos.color);
-				DrawManager.setStrokeSize(pos.size);
-				DrawManager.drawBrush(pos.x, pos.y, pos.isSeed);
+				DrawManager.draw(data.data, pos.x, pos.y);
+
+				// var pos = data.pos;
+				// if (data.id) {
+				// 	addGroup(data.id);
+				// }
+				// if (pos.isSeed) {
+				// 	DrawManager.setCurrent(data.id);
+				// }
+				// DrawManager.setStrokeColor(pos.color);
+				// DrawManager.setStrokeSize(pos.size);
+				// DrawManager.drawBrush(pos.x, pos.y, pos.isSeed);
 			}
 
 			function line(data) {
+				var id = data.id;
+				addGroup(id);
+				DrawManager.setCurrent(id);
+
+				// DrawManager.setStrokeColor(pos.color);
+				// DrawManager.setStrokeSize(pos.size);
 				var pos = data.pos;
-				if (data.id) {
-					addGroup(data.id);
-				}
-				if (pos.isSeed) {
-					DrawManager.setCurrent(data.id);
-				}
-				DrawManager.setStrokeColor(pos.color);
-				DrawManager.setStrokeSize(pos.size);
-				DrawManager.drawLine(pos.x, pos.y, pos.isSeed);
+				DrawManager.drawLine(pos.x, pos.y, pos.isSeed, pos.isUp);
 
 			}
 
@@ -53,17 +59,13 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 			}
 
 			function drag(data) {
-				var pos = data.pos;
-				if (data.id) {
-					addGroup(data.id);
-				}
 				DrawManager.setCurrent(data.id);
-				DrawManager.setCurrentPosition(data.n, pos.x, pos.y);
+				DrawManager.setCurrentPosition(data.n, data.data);
 			}
 
 			var strokeColor, fillColor, strokeSize, fontSize;
 			DataManager.getData(typePos, function(data) {
-				if (data.pos.isSeed) {
+				if (data.pos && data.pos.isSeed) {
 					strokeColor = DrawManager.getStrokeColor();
 					fillColor = DrawManager.getFillColor();
 					strokeSize = DrawManager.getStrokeSize();
@@ -83,7 +85,7 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 						drag(data);
 						break;
 				}
-				if (data.pos.isUp) {
+				if (data.pos && data.pos.isUp) {
 					DrawManager.setStrokeColor(strokeColor);
 					DrawManager.setFillColor(fillColor);
 					DrawManager.setStrokeSize(strokeSize);
@@ -117,26 +119,22 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				DrawFactory.setAnimate(data, draw);
 			});
 
-			DrawFactory.setDragObject(function(data) {
+			DrawFactory.setDragObject(function(data, attr) {
 				var obj = {};
-				obj.pos = data.getPosition();
-				obj.n = data.getId();
 				obj.type = DrawFactory.tools.DRAG_OBJECT;
+				obj.n = DrawManager.getIndex(data);
+				obj.data = attr;
 				DataManager.setData(typePos, obj);
 			});
-			DrawFactory.setText(function(data) {
-				pos = data;
-				Input.show(pos.x, pos.y);
-				$rootScope.$apply();
-			});
-			DrawFactory.setDraw(function(pos) {
+			DrawFactory.setDraw(function(data) {
 				var obj = {};
-				obj.pos = pos;
+				obj.pos = {
+					x: data.get("left"),
+					y: data.get("top")
+				};
+				// obj.pos.isSeed = true;
 				obj.type = DrawFactory.tools.DRAW;
-				if (pos.isSeed) {
-					obj.pos.color = DrawManager.getStrokeColor();
-					obj.pos.size = DrawManager.getStrokeSize();
-				}
+				obj.data = data;
 				draw(obj);
 				DataManager.setData(typePos, obj);
 			});
@@ -144,10 +142,10 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				var obj = {};
 				obj.pos = pos;
 				obj.type = DrawFactory.tools.LINE;
-				if (pos.isSeed) {
-					obj.pos.color = DrawManager.getStrokeColor();
-					obj.pos.size = DrawManager.getStrokeSize();
-				}
+				// if (pos.isSeed) {
+				// 	obj.pos.color = DrawManager.getStrokeColor();
+				// 	obj.pos.size = DrawManager.getStrokeSize();
+				// }
 				line(obj);
 				if (pos.isSeed || pos.isUp) {
 					DataManager.setData(typePos, obj);
@@ -165,7 +163,7 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				callback.strokeSize = Math.floor(Math.random() * 10) + 4;
 				callback.fontSize = Math.floor(Math.random() * 20) + 28;
 				DrawFactory.setAttr(attr, callback);
-			});
+			});	
 		}
 	};
 });

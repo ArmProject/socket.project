@@ -16,6 +16,10 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 		SIZE_FONT: "Text Size"
 	};
 	var listener = {};
+	// var canvas = Canvas.getCanvas();
+	// Canvas.getCanvas().then(function(cs) {
+	// 	canvas = cs;
+	// });
 
 	this.setAnimate = function(data, draw) {
 		var delay = 10;
@@ -48,107 +52,120 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 		};
 	};
 	this.setDraw = function(draw) {
-		var isSeed = true,
-			isDraw = false,
-			isUp = false;
 		listener.draw = {
-			onDown: function() {
-				isDraw = true;
-				isUp = false;
-				isSeed = true;
-			},
-			onMove: function(pos) {
-				if (isDraw || isUp) {
-					var obj = {
-						x: pos.x,
-						y: pos.y
-					};
-					if (isSeed && !isUp) {
-						obj.isSeed = isSeed;
-					}
-					if (isUp) {
-						obj.isUp = isUp;
-					}
-					if (!isUp) {
-						draw(obj);
-					}
-					isSeed = false;
-					isUp = false;
-				}
-			},
-			onUp: function() {
-				isDraw = false;
-				isSeed = true;
-				isUp = true;
+			onFinish: function(e) {
+				draw(e.path);
 			}
 		};
 	};
 	this.setLine = function(line) {
 		var isSeed = true,
-			isDraw = false,
-			isUp = false;
+			isDraw = false;
 		listener.line = {
 			onDown: function() {
-				isSeed = true;
 				isDraw = true;
-				isUp = false;
+				isSeed = true;
 			},
 			onMove: function(pos) {
-				if (isDraw || isUp) {
+				if (isDraw) {
 					var obj = {
 						x: pos.x,
 						y: pos.y
 					};
-					if (isSeed && !isUp) {
-						obj.isSeed = isSeed;
-					}
-					if (isUp) {
-						obj.isUp = isUp;
+					if (isSeed) {
+						obj.isSeed = true;
+						isSeed = false;
 					}
 					line(obj);
-
-					isSeed = false;
-					isUp = false;
 				}
 			},
-			onUp: function() {
+			onUp: function(pos) {
 				isDraw = false;
-				isSeed = true;
-				isUp = true;
-			}
+				var obj = {
+					x: pos.x,
+					y: pos.y
+				};
+				obj.isUp = true;
+				line(obj);
+			},
 		};
 	};
 	this.setDragObject = function(drag) {
+		var isDrag = false,
+			objDrag;
+		var x1, y1, x2, y2;
 		listener.dragObject = {
-			onDragEnd: function(data) {				
-				drag(data);
+			onDown: function(pos, e) {
+				objDrag = e.target;
+				if (e.target) {
+					x1 = objDrag.get("left");
+					y1 = objDrag.get("top");
+					isDrag = true;
+				}
+			},
+			onMove: function(e) {
+				var obj = e.target;
+				if (obj && isDrag && objDrag == obj) {
+					var data = {};
+					x2 = obj.get("left");
+					y2 = obj.get("top");
+					data.pos = {
+						x: x2 - x1,
+						y: y2 - y1
+					};
+					drag(obj, data);
+					x1 = x2;
+					y1 = y2;
+				}
+			},
+			onScale: function(e) {
+				var obj = e.target;
+				var data = {};
+				x2 = obj.get("left");
+				y2 = obj.get("top");
+				data.pos = {
+					x: x2 - x1,
+					y: y2 - y1
+				};
+				data.scale = {
+					x: obj.get("scaleX"),
+					y: obj.get("scaleY")
+				};
+				data.flip = {
+					x: obj.get("flipX"),
+					y: obj.get("flipY")
+				};
+				drag(obj, data);
+				x1 = x2;
+				y1 = y2;
+			},
+			onRotate: function(e) {
+				var obj = e.target;
+				var data = {};
+				data.angle = obj.get("angle");
+				drag(obj, data);
 			}
+
 		};
 	};
-	// this.setDragGroup = function(drag) {
-	// 	listener.dragGroup = {
-	// 		onDragEnd: function(data) {				
-	// 			drag(data);
-	// 		}
-	// 	};
-	// };
 
 	this.setTool = function(tool) {
 		unsetBind();
 		switch (tool) {
 			case self.tools.DRAW:
-				DrawManager.canDrag(false);
-				DrawManager.canGroupDrag(false);
+				// DrawManager.canDrag(false);
+				// DrawManager.canGroupDrag(false);
+				DrawManager.setDraw();
 				setBind(listener.draw);
 				break;
 			case self.tools.LINE:
-				DrawManager.canDrag(false);
-				DrawManager.canGroupDrag(false);
+				// DrawManager.canDrag(false);
+				// DrawManager.canGroupDrag(false);
 				setBind(listener.line);
 				break;
 			case self.tools.TEXT:
-				DrawManager.canDrag(false);
-				DrawManager.canGroupDrag(false);
+				// DrawManager.canDrag(false);
+				// DrawManager.canGroupDrag(false);
 				setBind(listener.text);
 				break;
 			case self.tools.ANIMATE:
@@ -168,10 +185,10 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 			case self.tools.DRAG_OBJECT:
 				DrawManager.canGroupDrag(false);
 				DrawManager.canDrag(true);
-				var current = DrawManager.getCurrentGroup();
-				angular.forEach(current, function(obj, key) {
-					setBind(listener.dragObject, obj);
-				});
+				// var current = DrawManager.getCurrentGroup();
+				// angular.forEach(current, function(obj, key) {
+				setBind(listener.dragObject);
+				// });
 				break;
 			case self.tools.CLEAR:
 				DrawManager.clear();
@@ -194,45 +211,73 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 				break;
 		}
 	};
-	function unsetBind(){
-		var cs = Canvas.canvas;
-		cs.unbind();
+
+	function unsetBind() {
+		DrawManager.removeDraw();
+		Canvas.getCanvas().then(function(canvas) {
+			canvas.off("mouse:down");
+			canvas.off("mouse:move");
+			canvas.off("mouse:up");
+		});
 	}
+
 	function setBind(callback, element) {
 		if (callback) {
-			var cs = Canvas.canvas;
-			if (callback.onDown) {
-				cs.bind("mousedown touchstart", function() {
-					callback.onDown(Canvas.getPosition());
-				});
-			}
-			if (callback.onMove) {
-				cs.bind("mousemove touchmove", function() {
-					callback.onMove(Canvas.getPosition());
-				});
-			}
-			if (callback.onUp) {
-				cs.bind("mouseup touchend touchcancel", function() {
-					callback.onUp(Canvas.getPosition());
-				});
-			}
-			if (callback.onDragStart) {
-				if (element) {
-					var ele = element;
-					ele.on("dragstart", function() {
-						callback.onDragStart(this);
+			Canvas.getCanvas().then(function(canvas) {
+
+				var cs = canvas;
+				if (callback.onDown) {
+					cs.on("mouse:down", function(e) {
+						callback.onDown(cs.getPointer(), e);
 					});
 				}
-			}
-			if (callback.onDragEnd) {
-				if (element) {
-					var ele = element;
-					ele.off("dragend");
-					ele.on("dragend", function() {
-						callback.onDragEnd(this);
+				if (callback.onMove) {
+					cs.on("mouse:move", function(e) {
+						callback.onMove(cs.getPointer(), e);
 					});
 				}
-			}
+				if (callback.onUp) {
+					cs.on("mouse:up", function(e) {
+						callback.onUp(cs.getPointer(), e);
+					});
+				}
+				if (callback.onFinish) {
+					cs.on("path:created", function(e) {
+						callback.onFinish(e);
+					});
+				}
+				if (callback.onMove) {
+					cs.on("object:moving", function(e) {
+						callback.onMove(e);
+					});
+				}
+				if (callback.onScale) {
+					cs.on("object:scaling", function(e) {
+						callback.onScale(e);
+					});
+				}
+				if (callback.onRotate) {
+					cs.on("object:rotating", function(e) {
+						callback.onRotate(e);
+					});
+				}
+				if (callback.onOver) {
+					cs.on("object:over", function(e) {
+						callback.onOver(e);
+					});
+				}
+				if (callback.onSelect) {
+					cs.on("object:selected", function(e) {
+						callback.onSelect(e);
+					});
+				}
+				if (callback.onUnSelect) {
+					cs.on("selection:cleared", function(e) {
+						callback.onUnSelect(e);
+					});
+				}
+			});
+
 		}
 	}
 });

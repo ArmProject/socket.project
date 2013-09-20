@@ -1,4 +1,4 @@
-app.controller('HandWriteCtrl', function($scope, $rootScope, DrawFactory) {
+app.controller('HandWriteCtrl', function($scope, $rootScope, DrawFactory, Canvas) {
 	$scope.tools = [];
 	$scope.attrs = [];
 	$scope.tool = DrawFactory.tools.DRAW;
@@ -14,7 +14,6 @@ app.controller('HandWriteCtrl', function($scope, $rootScope, DrawFactory) {
 	$scope.changeAttr = function(index) {
 		$rootScope.$broadcast('attr', $scope.attrs[index]);
 	};
-
 });
 
 app.controller('SlideCtrl', function($scope, $rootScope, DrawFactory, SlideManager) {
@@ -27,7 +26,7 @@ app.controller('SlideCtrl', function($scope, $rootScope, DrawFactory, SlideManag
 
 	$scope.tools = [];
 	$scope.attrs = [];
-	$scope.tool = DrawFactory.tools.DRAG_OBJECT;
+	$scope.tool = DrawFactory.tools.DRAW;
 	angular.forEach(DrawFactory.tools, function(value, key) {
 		$scope.tools.push(value);
 	});
@@ -81,7 +80,6 @@ app.controller('HomeCtrl', function($scope, Room, Socket, Restangular) {
 	$scope.disconnect = function() {
 		Socket.emit("leave:room");
 		Socket.disconnect();
-	};
-
+	};	
 	// $scope.connect();
 });

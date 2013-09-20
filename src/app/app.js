@@ -75,8 +75,10 @@ app.factory("DataManager", function(Canvas, Socket) {
 			switch (type) {
 				case "pos":
 					Socket.on("send:" + type, function(data) {
-						data.pos.x *= Canvas.width;
-						data.pos.y *= Canvas.height;
+						if (data.pos) {
+							data.pos.x *= Canvas.width;
+							data.pos.y *= Canvas.height;
+						}
 						callback(data);
 					});
 					break;
@@ -113,41 +115,59 @@ app.factory("DataManager", function(Canvas, Socket) {
 app.service("Canvas", function($q) {
 	var self = this;
 	var stage;
-	var obj = {};
-	var deferred = $q.defer();
-	this.init = function(id) {
-		deferred = $q.defer();
-		var cs = $("#" + id);
-		if (cs) {
-			var container = cs.parent();
-			self.canvas = cs;
-			self.width = container.width();
-			self.height = container.height();
-			stage = new Kinetic.Stage({
-				container: id,
-				width: self.width,
-				height: self.height
-			});
-		}
-		deferred.resolve(stage);
-		// return stage;
+	// this.names = {
+	// 	DRAW: "draw",
+	// 	MIRROR: "mirror"
+	// }
+	var obj = {
+		// draw: {},
+		// mirror: {},
+		// test: {}
 	};
-	this.getCurrent = function() {
-		if (stage && !deferred.promise) {
-			deferred.resolve(stage);
+	var id;
+	var deferred = $q.defer();
+	var canvas;
+	// angular.forEach(obj, function(value, key) {
+	// 	canvas = new fabric.Canvas(key);
+	// 	canvas.selection = false;
+	// 	obj[key] = canvas.getObjects();
+	// });
+	// this.id = self.names.DRAW;
+	this.init = function(name) {
+		id = name;
+		deferred = $q.defer();
+		// var id = self.id
+		var parent = $('#' + id).parent();
+		$('#' + id)[0].width = parent.width();
+		$('#' + id)[0].height = parent.height();
+		// canvas = new fabric.Canvas(id);
+		canvas = new fabric.Canvas(id, {
+			width: parent.width(),
+			height: parent.height()
+		});
+		self.width = canvas.getWidth();
+		self.height = canvas.getHeight();
+		deferred.resolve(canvas);
+	};
+	this.getCanvas = function() {
+		// var id = self.id
+		// canvas = new fabric.Canvas(id);
+		// canvas.selection = false;
+		// if (id in obj) {
+		// 	var children = obj[id].getObjects();
+		// 	console.log(canvas)
+		// 	angular.forEach(children, function(child, key) {
+		// 		canvas.add(child);
+		// 	});
+		// } else {
+		// 	obj[id] = canvas;
+		// }
+		// return canvas;
+		if (canvas && !deferred.promise) {
+			deferred.resolve(canvas);
 		}
 		return deferred.promise;
-	}
-	this.getPosition = function() {
-		var mousePos = stage.getMousePosition();
-		var touchPos = stage.getTouchPosition();
-		if (mousePos && mousePos.x && mousePos.y) {
-			return mousePos;
-		} else if (touchPos && touchPos.x && touchPos.y) {
-			return touchPos;
-		}
 	};
-
 });
 app.service("Input", function() {
 	var self = this;

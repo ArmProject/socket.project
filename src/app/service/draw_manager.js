@@ -1,87 +1,129 @@
-app.service("DrawManager", function(Canvas) {
+app.service("DrawManager", function(Canvas, $rootScope) {
 	var self = this;
 
-	this.strokeColor = 'white';
+	this.strokeColor = 'black';
 	this.fillColor = 'white';
 	this.strokeSize = 5;
 	this.fontSize = 30;
+	var drawOption = {
+		color: 'black',
+		width: 5
+	};
 	var lineOption = {
-		points: [0, 0, 0, 0],
-		stroke: 'white',
-		strokeWidth: 5,
-		lineCap: 'round',
-		lineJoin: 'round'
+		stroke: 'black',
+		strokeWidth: 5
 	};
 	var textOption = {
 		fontSize: 30,
 		fill: 'white'
 	};
-	var groupOption = {
-		// dragOnTop: false
-	};
 
-	var stage, layer, current;
 	var line, text;
-	var obj = {},index;
-	this.init = function(id) {
-		index = id;
+	var id;
+	var obj = {};
+	var groups = {};
+	var canvas, current;
+	this.init = function(name) {
+		id = name;
 		Canvas.init(id.split("-")[0]);
-		Canvas.getCurrent().then(function(data) {
-			stage = data;
+		Canvas.getCanvas().then(function(cs) {
+			canvas = cs;
+			canvas.defaultCursor = "crosshair";
+			canvas.on("object:selected", function(e) {
+				var obj = e.target;
+				obj.set('hasControls', true);
+				obj.set('hasRotatingPoint', true);
+			});
+			canvas.on("selection:created", function(e) {
+				var obj = e.target;
+				obj.set('hasControls', false);
+				obj.set('hasRotatingPoint', false);
+			});
 			if (id in obj) {
-				layer = obj[id];
+				var children = obj[id];
+				angular.forEach(children, function(child, key) {
+					canvas.add(child);
+				});
+				canvas.renderAll();
 			} else {
-				layer = new Kinetic.Layer();
-				obj[id] = layer;
+				obj[id] = canvas.getObjects();
 			}
-			self.newGroup();
-			self.setCurrent();
-			stage.add(layer);
 		});
 	};
-	this.initBrush = function(x, y, isSeed) {
-		line = new Kinetic.Line(lineOption);
-		line.getPoints()[0].x = x;
-		line.getPoints()[0].y = y;
-		line.getPoints()[1].x = x;
-		line.getPoints()[1].y = y;
-		if (isSeed) {
-			groupOption.id = current.getChildren().length;
-			group = new Kinetic.Group(groupOption);
-			current.add(group);
-		}
-		group.add(line);
+	this.saveData = function() {
+		obj[id] = canvas.getObjects();
+	}
+	this.disableMove = function(obj) {
+		canvas.selection = false;
+		obj.set('selectable', false);
+		obj.set('hasControls', false);
+		obj.set('hasBorders', false);
+		obj.set('hasRotatingPoint', false);
 	};
-	this.drawBrush = function(x, y, isSeed) {
-		if (!isSeed) {
-			line.getPoints()[1].x = x;
-			line.getPoints()[1].y = y;
-			layer.batchDraw();
+	this.enableMove = function(obj) {
+		canvas.selection = true;
+		obj.set('selectable', true);
+		obj.set('hasBorders', true);
+		// obj.set('hasControls', true);
+	};
+	this.draw = function(data, x, y) {
+		if (current instanceof fabric.Group) {
+			var paths = [];
+			angular.forEach(data.path, function(value, key) {
+				paths.push(value.join(" "));
+			});
+			paths = paths.join(" ");
+			var path = new fabric.Path(paths);
+			path.set({
+				left: x,
+				top: y,
+				fill: null,
+				stroke: data.stroke,
+				strokeWidth: data.strokeWidth,
+				strokeLineCap: data.strokeLineCap,
+				strokeLineJoin: data.strokeLineJoin
+			});
+			current.addWithUpdate(path);
+
+			self.disableMove(path);
+		} else {
+			self.disableMove(data);
 		}
-		self.initBrush(x, y, isSeed);
+		canvas.renderAll();
+	}
+	this.setDraw = function() {
+		canvas.isDrawingMode = true;
+		angular.forEach(drawOption, function(value, key) {
+			canvas.freeDrawingBrush[key] = value;
+		});
+	};
+	this.removeDraw = function() {
+		canvas.isDrawingMode = false;
+		canvas.off("path:created");
 	};
 
-	this.initLine = function(x, y, isSeed) {
-		line = new Kinetic.Line(lineOption);
-		line.getPoints()[0].x = x;
-		line.getPoints()[0].y = y;
-		line.getPoints()[1].x = x;
-		line.getPoints()[1].y = y;
-		layer.batchDraw();
+	this.drawLine = function(x, y, isSeed, isUp) {
 		if (isSeed) {
-			groupOption.id = current.getChildren().length;
-			group = new Kinetic.Group(groupOption);
-			current.add(group);
-		}
-		group.add(line);
-	};
-	this.drawLine = function(x, y, isSeed) {
-		if (isSeed) {
-			self.initLine(x, y, isSeed);
+			xPos = x;
+			yPos = y;
 		} else {
-			line.getPoints()[1].x = x;
-			line.getPoints()[1].y = y;
-			layer.batchDraw();
+			if (xPos && yPos) {
+				current.remove(line);
+				line = new fabric.Line([xPos, yPos, x, y], lineOption);
+				if (current instanceof fabric.Group) {
+					current.addWithUpdate(line)
+				} else {
+					current.add(line);
+				}
+				self.disableMove(line);
+				canvas.calcOffset();
+				canvas.renderAll();
+			}
+			if (isUp) {
+				line = null;
+				xPos = null;
+				yPos = null;
+			}
 		}
 	};
 
@@ -134,58 +176,131 @@ app.service("DrawManager", function(Canvas) {
 
 	this.setCurrent = function(id) {
 		if (id) {
-			current = layer.get('#' + id)[0];
-			if (!current) {
-				self.newGroup(id);
-				current = layer.get('#' + id)[0];
-			}
+			current = groups[id];
 		} else {
-			current = layer.get('#')[0];
+			current = canvas;
 		}
 	};
 	this.newGroup = function(id) {
-		id = id ? id : '';
-		if (layer.get('#' + id).length == 0) {
-			groupOption.id = id;
-			var group = new Kinetic.Group(groupOption);
-			layer.add(group);
+		if (id) {
+			if (!(id in groups)) {
+				groups[id] = new fabric.Group();
+				self.disableMove(groups[id]);
+				canvas.add(groups[id]);
+			}
 		}
 	};
-	this.getGroup = function() {
-		return layer.getChildren();
-	};
+	this.getIndex = function(obj) {
+		var index = [];
+		if (obj instanceof fabric.Group) {
+			obj.forEachObject(function(obj) {
+				index.push(canvas.getObjects().indexOf(obj));
+
+			});
+		} else {
+			index.push(canvas.getObjects().indexOf(obj));
+		}
+		return index
+	}
 	this.getCurrentGroup = function(id) {
-		id = id ? id : '';
-		return layer.get('#' + id)[0].getChildren();
+		// id = id ? id : '';
+		// return layer.get('#' + id)[0].getChildren();
 	};
-	this.setCurrentPosition = function(n, x, y) {
-		var obj = current.getChildren()[n];
-		obj.setX(x);
-		obj.setY(y);
-		layer.batchDraw();
+	this.setCurrentPosition = function(indexs, data) {
+		// var objMin, min = {};
+		// var objs = [];
+		angular.forEach(current.getObjects(), function(obj, key) {
+			if (indexs.indexOf(key) != -1) {
+				if (data.pos) {
+					obj.set({
+						"left": obj.get("left") + data.pos.x,
+						"top": obj.get("top") + data.pos.y,
+					});
+				}
+				if (data.scale || data.flip) {
+					// var center = obj.getCenterPoint();
+					// obj.translateToOriginPoint(center, scale.point.x, scale.point.y);
+					obj.set({
+						"scaleX": data.scale.x,
+						"scaleY": data.scale.y,
+						"flipX": data.flip.x,
+						"flipY": data.flip.y
+					});
+				}
+				if (data.angle) {
+					obj.set({
+						"angle": data.angle
+					});
+				}
+			}
+		});
+		// adjustPosition();
+		canvas.renderAll();
+
+		// function adjustPosition() {
+		// 	var x = objMin.get("left");
+		// 	var y = objMin.get("top");
+		// 	current.set({
+		// 		"left": x,
+		// 		"top": y
+		// 	});
+		// 	angular.forEach(current.getObjects(), function(obj, key) {
+		// 		var dx = obj.get("left") - x;
+		// 		var dy = obj.get("top") - y;
+		// 		console.log(x+" "+y)
+		// 		console.log(obj.get("left")+" "+obj.get("top"))
+		// 		obj.set({
+		// 			"left": dx,
+		// 			"top": dy
+		// 		});
+		// 		// current.addWithUpdate(obj);
+		// 		// canvas.calcOffset();
+		// 		// canvas.renderAll();
+		// 	})
+		// }
+
+		// function findMinPosition(obj) {
+		// 	var x = obj.get("left");
+		// 	var y = obj.get("top");
+		// 	if ((!min.x && !min.y) || (min.x > x && min.y > y)) {
+		// 		min.x = x;
+		// 		min.y = y;
+		// 		objMin = obj.clone();
+		// 	}
+
+		// }
 	};
 	this.canDrag = function(canDrag) {
-		var objs = self.getCurrentGroup();
-		angular.forEach(objs, function(obj, key) {
-			obj.setDraggable(canDrag);
+		angular.forEach(canvas.getObjects(), function(obj, key) {
+			if (!(obj instanceof fabric.Group)) {
+				if (canDrag) {
+					self.enableMove(obj);
+				} else {
+					self.disableMove(obj);
+				}
+			}
+
 		});
 	};
 	this.canGroupDrag = function(canDrag) {
-		var groups = self.getGroup();
-		angular.forEach(groups, function(group, key) {
-			if (group.getId() != '') {
-				group.setDraggable(canDrag);
+		angular.forEach(canvas.getObjects(), function(obj, key) {
+			if (obj instanceof fabric.Group) {
+				if (canDrag) {
+					self.enableMove(obj);
+				} else {
+					self.disableMove(obj);
+				}
 			}
+
 		});
 	};
 	this.clear = function() {
-		layer.remove();
-		delete obj[index];
-		self.init(index);
-		// layer = new Kinetic.Layer();
-		// stage.add(layer);
-		// self.newGroup();
-		// self.setCurrent();
+		canvas.clear();
+		Canvas.removeId(id)
+		self.init(id);
 	};
 
+	$rootScope.$on("$routeChangeStart", function($currentRoute, $previousRoute) {
+		self.saveData();
+	});
 });
