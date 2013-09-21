@@ -54,6 +54,7 @@ module.exports = {
       'vendor/jquery/jquery.min.js',
       'vendor/fabric/dist/all.min.js',
       'vendor/angular/angular.min.js',
+      'vendor/angular-route/angular-route.min.js',
       'vendor/bootstrap/dist/js/bootstrap.min.js',
       'vendor/bootstrap/dist/css/bootstrap.min.css',
       'vendor/underscore/underscore-min.js',
