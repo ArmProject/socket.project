@@ -1,15 +1,19 @@
 {
   "name": "socket",
   "dependencies": {
-      "jquery": "2.0.x",
-      "angular": "1.x.x", 
-      "angular-route": "~1.x.x", 
-      "bootstrap": "3.x.x",
-      "angular-ui-bootstrap-bower": "0.x.x",
-      "underscore": "1.x.x",
-      "restangular": "1.x.x",
-      "fabric": "1.x.x",
-      "socket.io": "http://localhost:8080/socket.io/socket.io.js",
-      "kineticjs": "http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.6.0.min.js"
+    "jquery": "~2.0.x",
+    "angular": "~1.2.0-rc.3",
+    "angular-touch": "~1.2.0-rc.3",
+    "angular-route": "~1.2.0-rc.3",
+    "bootstrap": "~3.x.x",
+    "angular-ui-bootstrap-bower": "~0.x.x",
+    "underscore": "~1.x.x",
+    "fabric": "~1.x.x",
+    "angular-ui-router": "~0.x.x",
+    "pdf.js": "https://github.com/mozilla/pdf.js.git#gh-pages",
+    "google_api": "https://apis.google.com/js/client.js",
+    "google_plus": "https://apis.google.com/js/plusone.js",
+    "jspdf": "https://raw.github.com/MrRio/jsPDF/gh-pages/dist/jspdf.min.js",
+    "socket.io": "http://localhost:8080/socket.io/socket.io.js"
   }
 }

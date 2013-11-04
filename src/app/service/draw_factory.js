@@ -87,63 +87,100 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 				};
 				obj.isUp = true;
 				line(obj);
-			},
+			}
 		};
 	};
 	this.setDragObject = function(drag) {
-		var isDrag = false,
-			objDrag;
+		var isMove = false,
+			isScale = false,
+			isRotate = false;
 		var x1, y1, x2, y2;
 		listener.dragObject = {
 			onDown: function(pos, e) {
-				objDrag = e.target;
-				if (e.target) {
-					x1 = objDrag.get("left");
-					y1 = objDrag.get("top");
-					isDrag = true;
+				var obj = e.target;
+				if (obj) {
+					x1 = obj.get("left");
+					y1 = obj.get("top");
 				}
 			},
-			onMove: function(e) {
+			onUp: function(pos, e) {
 				var obj = e.target;
-				if (obj && isDrag && objDrag == obj) {
+				if (obj) {
 					var data = {};
 					x2 = obj.get("left");
-					y2 = obj.get("top");
-					data.pos = {
-						x: x2 - x1,
-						y: y2 - y1
-					};
+					y2 = obj.get("top");					
+					if (isMove) {
+						data.pos = {
+							x: x2 - x1,
+							y: y2 - y1
+						};
+					}
+					if (isScale) {
+						data.scale = {
+							x: obj.get("scaleX"),
+							y: obj.get("scaleY")
+						};
+						data.flip = {
+							x: obj.get("flipX"),
+							y: obj.get("flipY")
+						};
+					}
+					if (isRotate) {
+						data.angle = obj.get("angle");
+					}
+
 					drag(obj, data);
 					x1 = x2;
 					y1 = y2;
 				}
+				isMove = false;
+				isScale = false;
+				isRotate = false;
+			},
+			onMove: function(e) {
+				isMove = true;
+				// var obj = e.target;
+				// if (obj) {
+				// 	var data = {};
+				// 	x2 = obj.get("left");
+				// 	y2 = obj.get("top");
+				// 	data.pos = {
+				// 		x: x2 - x1,
+				// 		y: y2 - y1
+				// 	};
+				// 	drag(obj, data);
+				// 	x1 = x2;
+				// 	y1 = y2;
+				// }
 			},
 			onScale: function(e) {
-				var obj = e.target;
-				var data = {};
-				x2 = obj.get("left");
-				y2 = obj.get("top");
-				data.pos = {
-					x: x2 - x1,
-					y: y2 - y1
-				};
-				data.scale = {
-					x: obj.get("scaleX"),
-					y: obj.get("scaleY")
-				};
-				data.flip = {
-					x: obj.get("flipX"),
-					y: obj.get("flipY")
-				};
-				drag(obj, data);
-				x1 = x2;
-				y1 = y2;
+				isScale = true;
+				// var obj = e.target;
+				// var data = {};
+				// x2 = obj.get("left");
+				// y2 = obj.get("top");
+				// data.pos = {
+				// 	x: x2 - x1,
+				// 	y: y2 - y1
+				// };
+				// data.scale = {
+				// 	x: obj.get("scaleX"),
+				// 	y: obj.get("scaleY")
+				// };
+				// data.flip = {
+				// 	x: obj.get("flipX"),
+				// 	y: obj.get("flipY")
+				// };
+				// drag(obj, data);
+				// x1 = x2;
+				// y1 = y2;
 			},
 			onRotate: function(e) {
-				var obj = e.target;
-				var data = {};
-				data.angle = obj.get("angle");
-				drag(obj, data);
+				isRotate = true;
+				// var obj = e.target;
+				// var data = {};
+				// data.angle = obj.get("angle");
+				// drag(obj, data);
 			}
 
 		};
@@ -177,16 +214,11 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 			case self.tools.DRAG_GROUP:
 				DrawManager.canDrag(false);
 				DrawManager.canGroupDrag(true);
-				// var current = DrawManager.getCurrentGroup();
-				// angular.forEach(current, function(group, key) {
-				// 	setBind(listener.dragGroup, group);
-				// });
 				break;
 			case self.tools.DRAG_OBJECT:
 				DrawManager.canGroupDrag(false);
 				DrawManager.canDrag(true);
-				// var current = DrawManager.getCurrentGroup();
-				// angular.forEach(current, function(obj, key) {
+
 				setBind(listener.dragObject);
 				// });
 				break;
@@ -218,6 +250,13 @@ app.service("DrawFactory", function(Canvas, DrawManager, $timeout) {
 			canvas.off("mouse:down");
 			canvas.off("mouse:move");
 			canvas.off("mouse:up");
+			canvas.off("path:created");
+			canvas.off("object:moving");
+			canvas.off("object:scaling");
+			canvas.off("object:rotating");
+			canvas.off("object:over");
+			canvas.off("object:selected");
+			canvas.off("selection:cleared");
 		});
 	}
 

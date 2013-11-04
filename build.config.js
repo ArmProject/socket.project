@@ -26,7 +26,7 @@ module.exports = {
     coffee: [ 'src/**/*.coffee', '!src/**/*.spec.coffee' ],
     coffeeunit: [ 'src/**/*.spec.coffee' ],
 
-    atpl: [ 'src/app/**/*.tpl.html' ],
+    atpl: [ 'src/app/**/**/*.tpl.html' ],
     ctpl: [ 'src/common/**/*.tpl.html' ],
 
     html: [ 'src/index.html' ],
@@ -54,11 +54,21 @@ module.exports = {
       'vendor/jquery/jquery.min.js',
       'vendor/fabric/dist/all.min.js',
       'vendor/angular/angular.min.js',
+      'vendor/angular-touch/angular-touch.min.js',
       'vendor/angular-route/angular-route.min.js',
+      'vendor/angular-ui-router/release/angular-ui-router.min.js',
       'vendor/bootstrap/dist/js/bootstrap.min.js',
       'vendor/bootstrap/dist/css/bootstrap.min.css',
       'vendor/underscore/underscore-min.js',
-      'vendor/restangular/dist/restangular.min.js'
+      'vendor/slick-quiz/js/slickQuiz.js',
+      'vendor/slick-quiz/css/master.css',
+      'vendor/slick-quiz/css/slickQuiz.css',
+      'vendor/google_api/index.js',
+      'vendor/google_plus/index.js',
+      'vendor/pdf.js/build/pdf.js',
+      'vendor/pdf.js/build/pdf.worker.js',
+      'vendor/pdf.js/web/compatibility.js',
+      'vendor/jspdf/index.js'
     ],
     css: [
     ]

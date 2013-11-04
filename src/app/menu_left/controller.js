@@ -1,6 +1,68 @@
+app.controller('QuizStudentCtrl', function($scope, QuizManager, DataManager) {
+	// QuizManager.load().then(function(data) {
+	// 	$('#slickQuiz').slickQuiz({
+	// 		json: data,
+	// 		skipStartButton: true
+	// 	});
+	// });
+	QuizManager.load().then(function(quiz) {
+		var type = DataManager.types.QUIZ;
+		// var quiz = QuizManager.quiz;
+		var index = 0,
+			select = 0,
+			n = quiz.length;
+		$scope.isEnd = false;
+		$scope.selected = false;
+		$scope.next = function() {
+			if (index != 0) {
+				var obj = {};
+				obj.question = index - 1;
+				obj.answer = select;
+				console.log(select)
+				DataManager.setData(type, obj);
+			}
+			if (index < n) {
+				$scope.question = quiz[index].question;
+				$scope.answer = quiz[index].answer;
+				index++;
+			} else {
+				$scope.isEnd = true;
+			}
+		}
+		$scope.select = function(index) {
+			select = index;
+		}
+		$scope.next(index);
+	});
+});
+app.controller('QuizTeacherCtrl', function($scope, QuizManager, DataManager) {
+	QuizManager.load().then(function(data) {
+		var type = DataManager.types.QUIZ;
+		$scope.quiz = [];
+		angular.forEach(data, function(quiz, key) {
+			var obj = {}
+			obj.question = quiz.question;
+			obj.answer = [];
+			angular.forEach(quiz.answer, function(answer, key) {
+				obj.answer.push({
+					name: answer,
+					n: 0
+				})
+			});
+			$scope.quiz.push(obj);
+		});
+
+		DataManager.getData(type, function(data) {
+			$scope.quiz[data.question].answer[data.answer].n += 1;
+			console.log($scope.quiz);
+		});
+	});
+});
+
 app.controller('HandWriteCtrl', function($scope, $rootScope, DrawFactory, Canvas) {
 	$scope.tools = [];
 	$scope.attrs = [];
+	$scope.isSend = true;
 	$scope.tool = DrawFactory.tools.DRAW;
 	angular.forEach(DrawFactory.tools, function(value, key) {
 		$scope.tools.push(value);
@@ -23,9 +85,17 @@ app.controller('SlideCtrl', function($scope, $rootScope, DrawFactory, SlideManag
 	$scope.prevIndex = function() {
 		SlideManager.prev();
 	};
-
+	$scope.save = function() {
+		html2canvas($('body'), {
+			onrendered: function(canvas) {
+				$('body').append(canvas);
+				console.log(canvas)
+			}
+		});
+	};
 	$scope.tools = [];
 	$scope.attrs = [];
+	$scope.isSend = true;
 	$scope.tool = DrawFactory.tools.DRAW;
 	angular.forEach(DrawFactory.tools, function(value, key) {
 		$scope.tools.push(value);
@@ -41,8 +111,9 @@ app.controller('SlideCtrl', function($scope, $rootScope, DrawFactory, SlideManag
 	};
 });
 
-app.controller('HomeCtrl', function($scope, Room, Socket, Restangular) {
-	$scope.user = String.fromCharCode(Math.random() * 26 + 97);
+app.controller('RoomCtrl', function($scope, Room, Socket, LoginManager) {
+	// $scope.user = String.fromCharCode(Math.random() * 26 + 97);
+	$scope.user = LoginManager.getUser();
 	$scope.room = "";
 	Room.room = $scope.room;
 
@@ -60,6 +131,7 @@ app.controller('HomeCtrl', function($scope, Room, Socket, Restangular) {
 	$scope.list();
 	$scope.connect = function() {
 		Room.room = $scope.room;
+		Room.user = $scope.user.username;
 		Socket.emit("connect:room", {
 			room: $scope.room,
 			user: $scope.user
@@ -69,17 +141,20 @@ app.controller('HomeCtrl', function($scope, Room, Socket, Restangular) {
 	};
 	$scope.create = function() {
 		Room.room = $scope.room;
+		Room.user = $scope.user.username;
 		Socket.emit("create:room", {
 			room: $scope.room,
-			user: $scope.user
+			user: $scope.user,
 		});
 	};
 	$scope.close = function() {
-		Socket.emit("close:room");
+		Socket.emit("close:room", {}, function(emails) {
+			console.log(emails);
+		});
 	};
 	$scope.disconnect = function() {
 		Socket.emit("leave:room");
 		Socket.disconnect();
-	};	
-	// $scope.connect();
+	};
+	$scope.connect();
 });

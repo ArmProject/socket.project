@@ -329,7 +329,7 @@ module.exports = function ( grunt ) {
      */
     karma: {
       options: {
-        configFile: '<%= build_dir %>/karma-unit.js'
+        configFile: 'karma/karma-unit.tpl.js'
       },
       unit: {
         runnerPort: 9101,
