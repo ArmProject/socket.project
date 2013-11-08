@@ -14,6 +14,8 @@
     "google_api": "https://apis.google.com/js/client.js",
     "google_plus": "https://apis.google.com/js/plusone.js",
     "jspdf": "https://raw.github.com/MrRio/jsPDF/gh-pages/dist/jspdf.min.js",
-    "socket.io": "http://localhost:8080/socket.io/socket.io.js"
+    "socket.io": "http://localhost:8080/socket.io/socket.io.js",
+    "angular-gesture": "~1.3.0",
+    "angular-loading-bar": "~0.0.5"
   }
 }
