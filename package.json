@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "socket",
   "main": "build/src/server/server.js",
   "description": "Socket Server",
   "scripts": {

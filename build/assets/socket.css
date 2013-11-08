@@ -1,0 +1,115 @@
+body,
+html {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  padding-top: 30px;
+}
+
+.thumbnail {
+  width: 100;
+  height: 100;
+}
+
+.chat-box img {
+  padding: 10;
+}
+
+.nav-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+}
+
+#loading-bar .bar {
+  background: #ff0000;
+}
+
+.fluid-container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.list {
+  overflow-y: hidden;
+}
+
+.item {
+  overflow-y: auto;
+}
+
+.pad {
+  height: 90%;
+}
+
+.toolbar {
+  height: 10%;
+}
+
+.fit-height {
+  height: 100%;
+}
+
+#draw {
+  background-color: #ffffff;
+}
+
+#textbox {
+  position: absolute;
+  /*display: none;*/
+
+  z-index: 9;
+  /*background-color: gray;*/
+
+}
+
+.slide-pad {
+  /*position: relative;*/
+
+  position: absolute;
+  z-index: 0;
+  /*top: -28px;*/
+
+  overflow: hidden;
+}
+
+.mirror {
+  position: absolute;
+  z-index: 1;
+}
+
+#slide {
+  position: relative;
+  top: 28px;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.chat-box {
+  height: 80%;
+  overflow: auto;
+  background-color: #808080;
+}
+
+.emoticon-box {
+  height: 20%;
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+
+.control-area {
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: 50%;
+  height: 100%;
+}
