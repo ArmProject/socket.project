@@ -1,40 +1,44 @@
-angular.module('templates-app', ['main/template/login.tpl.html', 'main/template/main.tpl.html', 'main/template/menu_left.tpl.html', 'main/template/menu_right.tpl.html', 'menu_left/template/drive.tpl.html', 'menu_left/template/drive_quiz.tpl.html', 'menu_left/template/drive_slide.tpl.html', 'menu_left/template/hand_write.tpl.html', 'menu_left/template/home_student.tpl.html', 'menu_left/template/home_teacher.tpl.html', 'menu_left/template/quiz_student.tpl.html', 'menu_left/template/quiz_teacher.tpl.html', 'menu_left/template/slide.tpl.html', 'menu_right/template/chat.tpl.html', 'menu_right/template/group.tpl.html']);
+angular.module('templates-app', ['main/template/login.tpl.html', 'main/template/main.tpl.html', 'main/template/menu_left.tpl.html', 'menu_left/template/attribute.tpl.html', 'menu_left/template/display.tpl.html', 'menu_left/template/draw_pad.tpl.html', 'menu_left/template/drive.tpl.html', 'menu_left/template/drive_quiz.tpl.html', 'menu_left/template/drive_slide.tpl.html', 'menu_left/template/home_student.tpl.html', 'menu_left/template/home_teacher.tpl.html', 'menu_left/template/quiz_student.tpl.html', 'menu_left/template/quiz_teacher.tpl.html', 'menu_left/template/slide_pad.tpl.html', 'menu_left/template/tool_bar.tpl.html', 'menu_right/template/chat.tpl.html', 'menu_right/template/group.tpl.html']);
 
 angular.module("main/template/login.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("main/template/login.tpl.html",
-    "<span id=\"signinButton\">\n" +
-    "  <span\n" +
-    "    class=\"g-signin\"\n" +
-    "    data-callback=\"signinCallback\"\n" +
-    "    data-clientid=\"459319943069-8qa7ada6rk80bqrmmnmdr37n08ejnke0.apps.googleusercontent.com\"\n" +
-    "    data-cookiepolicy=\"single_host_origin\"\n" +
-    "    data-requestvisibleactions=\"http://schemas.google.com/AddActivity\"\n" +
-    "    data-scope=\"https://www.googleapis.com/auth/plus.login\n" +
-    "     https://www.googleapis.com/auth/userinfo.email\n" +
-    "     https://www.googleapis.com/auth/drive\">\n" +
-    "  </span>\n" +
-    "</span>");
+    "<div class=\"modal-dialog\">\n" +
+    "	<div class=\"modal-content\">\n" +
+    "\n" +
+    "		<div class=\"modal-header\">\n" +
+    "			Login\n" +
+    "		</div>\n" +
+    "\n" +
+    "		<div class=\"modal-body\">\n" +
+    "			<span id=\"signinButton\">\n" +
+    "				<span\n" +
+    "				class=\"g-signin\"\n" +
+    "				data-callback=\"signinCallback\"\n" +
+    "				data-clientid=\"459319943069-8qa7ada6rk80bqrmmnmdr37n08ejnke0.apps.googleusercontent.com\"\n" +
+    "				data-cookiepolicy=\"single_host_origin\"\n" +
+    "				data-requestvisibleactions=\"http://schemas.google.com/AddActivity\"\n" +
+    "				data-scope=\"https://www.googleapis.com/auth/plus.login\n" +
+    "				https://www.googleapis.com/auth/userinfo.email\n" +
+    "				https://www.googleapis.com/auth/drive\">\n" +
+    "			</span>\n" +
+    "		</span>\n" +
+    "\n" +
+    "	</div>\n" +
+    "</div>  ");
 }]);
 
 angular.module("main/template/main.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("main/template/main.tpl.html",
-    "<div ng-controller=\"MainCtrl\" ng-swipe-left=\"checkSwipe(true)\" ng-swipe-right=\"checkSwipe(false)\">\n" +
+    "<div ng-controller=\"MainCtrl\">\n" +
     "\n" +
     "	<menu-left class=\"navbar navbar-fixed-top\"></menu-left>\n" +
     "	\n" +
     "	<div class=\"fluid-container\">\n" +
     "		<div class=\"row fit-height\">\n" +
-    "			<div class=\"well col-md-9 col-lg-9 fit-height\">\n" +
+    "			\n" +
+    "			<div class=\"well fit-height\">\n" +
     "				<ui-view></ui-view>\n" +
     "			</div>\n" +
-    "			<div class=\"well col-md-3 col-lg-3 visible-md visible-lg fit-height\">\n" +
-    "				<menu-right></menu-right>\n" +
-    "			</div>					\n" +
-    "			<div ng-show=\"isShow\" class=\"nav-right\">\n" +
-    "				<div class=\"visible-xs visible-sm fit-height\">\n" +
-    "					<menu-right></menu-right>\n" +
-    "				</div>\n" +
-    "			</div>	\n" +
     "		</div>\n" +
     "	</div>\n" +
     "\n" +
@@ -43,34 +47,147 @@ angular.module("main/template/main.tpl.html", []).run(["$templateCache", functio
 
 angular.module("main/template/menu_left.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("main/template/menu_left.tpl.html",
-    "<div>\n" +
-    "	<a ui-sref=\"main.home_{{access}}\">Home</a>\n" +
-    "	<a ui-sref=\"main.drive\">Drive</a>\n" +
-    "	<a ui-sref=\"main.draw\">Draw</a>\n" +
-    "	<a ui-sref=\"main.slide\">Slide</a>\n" +
-    "	<a ui-sref=\"main.quiz_{{access}}\">Quiz</a>\n" +
+    "<div class=\"navbar-container\">\n" +
+    "	<div class=\"navbar-header pull-left\">\n" +
+    "		<!-- <a ui-sref=\"main.home\">Home</a>\n" +
+    "		<a ui-sref=\"main.drive\">Drive</a>\n" +
+    "		<a ui-sref=\"main.draw\">Draw</a>\n" +
+    "		<a ui-sref=\"main.slide\">Slide</a>\n" +
+    "		<a ui-sref=\"main.quiz\">Quiz</a> -->\n" +
+    "		<ul class=\"nav ace-nav\">\n" +
+    "			<li class=\"light-orange\"><a ui-sref=\"main.home\">Home</a></li>\n" +
+    "			<li class=\"light-purple\"><a ui-sref=\"main.drive\">Drive</a></li>\n" +
+    "			<li class=\"light-pink\"><a ui-sref=\"main.draw\">Draw</a></li>\n" +
+    "			<li class=\"dark-opaque\"><a ui-sref=\"main.slide\">Slide</a></li>\n" +
+    "			<li class=\"white-opaque\"><a ui-sref=\"main.quiz\">Quiz</a></li>\n" +
+    "		</ul>\n" +
+    "	</div>\n" +
+    "	<div class=\"navbar-header pull-right\">\n" +
+    "		<span>{{name}}</span>\n" +
+    "		<button class=\"inline\" ng-click=\"logout()\">logout</button>\n" +
+    "		<iframe id=\"logout\" ng-src=\"{{url}}\" style=\"display:none;\"></iframe>\n" +
+    "	</div>\n" +
     "</div>");
 }]);
 
-angular.module("main/template/menu_right.tpl.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("main/template/menu_right.tpl.html",
-    "<div ng-hide=\"isHide\">\n" +
-    "	<!-- <ul>\n" +
-    "    	<li ng-repeat=\"menu in menus\">\n" +
-    "    		<a href=\"javascript:void(0)\" ng-click=\"setCurrent($index)\">{{menu}}</a>\n" +
-    "    	</li>\n" +
-    "	</ul> -->\n" +
+angular.module("menu_left/template/attribute.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/attribute.tpl.html",
     "\n" +
-    "	<div ng-switch on=\"current\">\n" +
-    "		<group ng-switch-when=\"group\"></group>\n" +
-    "		<chat ng-switch-when=\"chat\"></chat>\n" +
+    "	<div class=\"color\" colorpicker=\"rgba\" colorpicker-position=\"top\" ng-model=\"attr\"></div>\n" +
+    "	<!-- <div class=\"slider\"></div> -->\n" +
+    "		<!-- <select id=\"color\">\n" +
+    "			<option value=\"ffffff\">#ffffff</option>\n" +
+    "			<option value=\"ffccc9\">#ffccc9</option>\n" +
+    "			<option value=\"ffce93\">#ffce93</option>\n" +
+    "			<option value=\"fffc9e\">#fffc9e</option>\n" +
+    "			<option value=\"ffffc7\">#ffffc7</option>\n" +
+    "			<option value=\"9aff99\">#9aff99</option>\n" +
+    "			<option value=\"96fffb\">#96fffb</option>\n" +
+    "			<option value=\"cdffff\">#cdffff</option>\n" +
+    "			<option value=\"cbcefb\">#cbcefb</option>\n" +
+    "			<option value=\"cfcfcf\">#cfcfcf</option>\n" +
+    "			<option value=\"fd6864\">#fd6864</option>\n" +
+    "			<option value=\"fe996b\">#fe996b</option>\n" +
+    "			<option value=\"fffe65\">#fffe65</option>\n" +
+    "			<option value=\"fcff2f\">#fcff2f</option>\n" +
+    "			<option value=\"67fd9a\">#67fd9a</option>\n" +
+    "			<option value=\"38fff8\">#38fff8</option>\n" +
+    "			<option value=\"68fdff\">#68fdff</option>\n" +
+    "			<option value=\"9698ed\">#9698ed</option>\n" +
+    "			<option value=\"c0c0c0\">#c0c0c0</option>\n" +
+    "			<option value=\"fe0000\">#fe0000</option>\n" +
+    "			<option value=\"f8a102\">#f8a102</option>\n" +
+    "			<option value=\"ffcc67\">#ffcc67</option>\n" +
+    "			<option value=\"f8ff00\">#f8ff00</option>\n" +
+    "			<option value=\"34ff34\">#34ff34</option>\n" +
+    "			<option value=\"68cbd0\">#68cbd0</option>\n" +
+    "			<option value=\"34cdf9\">#34cdf9</option>\n" +
+    "			<option value=\"6665cd\">#6665cd</option>\n" +
+    "			<option value=\"9b9b9b\">#9b9b9b</option>\n" +
+    "			<option value=\"cb0000\">#cb0000</option>\n" +
+    "			<option value=\"f56b00\">#f56b00</option>\n" +
+    "			<option value=\"ffcb2f\">#ffcb2f</option>\n" +
+    "			<option value=\"ffc702\">#ffc702</option>\n" +
+    "			<option value=\"32cb00\">#32cb00</option>\n" +
+    "			<option value=\"00d2cb\">#00d2cb</option>\n" +
+    "			<option value=\"3166ff\">#3166ff</option>\n" +
+    "			<option value=\"6434fc\">#6434fc</option>\n" +
+    "			<option value=\"656565\">#656565</option>\n" +
+    "			<option value=\"9a0000\">#9a0000</option>\n" +
+    "			<option value=\"ce6301\">#ce6301</option>\n" +
+    "			<option value=\"cd9934\">#cd9934</option>\n" +
+    "			<option value=\"999903\">#999903</option>\n" +
+    "			<option value=\"009901\">#009901</option>\n" +
+    "			<option value=\"329a9d\">#329a9d</option>\n" +
+    "			<option value=\"3531ff\">#3531ff</option>\n" +
+    "			<option value=\"6200c9\">#6200c9</option>\n" +
+    "			<option value=\"343434\">#343434</option>\n" +
+    "			<option value=\"680100\">#680100</option>\n" +
+    "			<option value=\"963400\">#963400</option>\n" +
+    "			<option value=\"986536\" selected=\"selected\">#986536</option>\n" +
+    "			<option value=\"646809\">#646809</option>\n" +
+    "			<option value=\"036400\">#036400</option>\n" +
+    "			<option value=\"34696d\">#34696d</option>\n" +
+    "			<option value=\"00009b\">#00009b</option>\n" +
+    "			<option value=\"303498\">#303498</option>\n" +
+    "			<option value=\"000000\">#000000</option>\n" +
+    "			<option value=\"330001\">#330001</option>\n" +
+    "			<option value=\"643403\">#643403</option>\n" +
+    "			<option value=\"663234\">#663234</option>\n" +
+    "			<option value=\"343300\">#343300</option>\n" +
+    "			<option value=\"013300\">#013300</option>\n" +
+    "			<option value=\"003532\">#003532</option>\n" +
+    "			<option value=\"010066\">#010066</option>\n" +
+    "			<option value=\"340096\">#340096</option>\n" +
+    "		</select>\n" +
+    "	 -->\n" +
+    "");
+}]);
+
+angular.module("menu_left/template/display.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/display.tpl.html",
+    "<div class=\"modal-dialog\">\n" +
+    "	<div class=\"modal-content\">\n" +
+    "		<div class=\"modal-body\">\n" +
+    "			<img ng-src=\"{{url+item}}\" ng-repeat=\"item in items\" ng-click=\"select($index)\">\n" +
+    "		</div>\n" +
+    "		<div class=\"modal-footer\">\n" +
+    "			<button ng-click=\"ok()\">Ok</button>\n" +
+    "			<button ng-click=\"cancel()\">Cancel</button>\n" +
+    "		</div>	\n" +
     "	</div>\n" +
+    "</div>'");
+}]);
+
+angular.module("menu_left/template/draw_pad.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/draw_pad.tpl.html",
+    "<div ng-swipe-up=\"checkToolSwipe(false)\" ng-swipe-down=\"checkToolSwipe(true)\" ng-swipe-left=\"checkMenuSwipe(false)\" ng-swipe-right=\"checkMenuSwipe(true)\">\n" +
+    "	<div style=\"display:none;\">\n" +
+    "		<canvas id=\"data\"/>\n" +
+    "	</div>\n" +
+    "	<div is-visible=\"isDesktop\" class=\"visible-md visible-lg\"></div>\n" +
+    "	<div class=\"row\">\n" +
+    "\n" +
+    "		<div class=\"pad col-md-9 col-lg-9\">\n" +
+    "			<canvas id=\"draw\" draw-pad text=\"{{text}}\" send=\"true\" fit-size></canvas>\n" +
+    "			<input id=\"textbox\" ng-model=\"text\">\n" +
+    "			<tool-bar class=\"toolbar\" tool=\"tool\" is-hide=\"{{hideTool&&!isDesktop}}\"></tool-bar>\n" +
+    "		</div>\n" +
+    "\n" +
+    "		<div ng-if=\"isDesktop\" class=\"well col-md-3 col-lg-3\">\n" +
+    "			<group></group>\n" +
+    "		</div>\n" +
+    "		<div ng-if=\"!isDesktop\" ng-hide=\"hideMenu\" class=\"nav-right\">\n" +
+    "			<group></group>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "	\n" +
     "</div>");
 }]);
 
 angular.module("menu_left/template/drive.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/drive.tpl.html",
-    "<div  class=\"container fit-height list\">\n" +
+    "<div  class=\"container fit-height\">\n" +
     "	<ul ng-init=\"tab = 'slide'\">\n" +
     "		<li><a ng-click=\"tab = 'slide'\">Slide</a></li>\n" +
     "		<li><a ng-click=\"tab = 'quiz'\">Quiz</a></li>\n" +
@@ -85,9 +202,11 @@ angular.module("menu_left/template/drive.tpl.html", []).run(["$templateCache", f
 
 angular.module("menu_left/template/drive_quiz.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/drive_quiz.tpl.html",
-    "<div class=\"row\">\n" +
-    "	<div class=\"well col-lg-8 fit-height\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
-    "		{{data}}\n" +
+    "<div class=\"container fit-height list\" scroll-bar> \n" +
+    "	<div class=\"row\">\n" +
+    "		<div class=\"well col-lg-8 fit-height\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
+    "			{{data}}\n" +
+    "		</div>\n" +
     "	</div>\n" +
     "</div>");
 }]);
@@ -98,11 +217,11 @@ angular.module("menu_left/template/drive_slide.tpl.html", []).run(["$templateCac
     "	<div style=\"display:none;\">\n" +
     "		<canvas id=\"data\"/>\n" +
     "	</div>\n" +
-    "	<button ng-click=\"saveSlide()\">Save Slide</button>\n" +
-    "	<button ng-click=\"saveDraw()\">Save Draw</button>\n" +
-    "	<div class=\"container fit-height item\">\n" +
+    "	<button class=\"btn\" ng-click=\"saveSlide()\">Save Slide</button>\n" +
+    "	<button class=\"btn\" ng-click=\"saveDraw()\">Save Draw</button>\n" +
+    "	<div class=\"container fit-height list\" scroll-bar>\n" +
     "		<div class=\"row\">\n" +
-    "			<div class=\"well col-lg-8\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
+    "			<div class=\"well col-lg-8\" ng-class=\"{selected: selected==$index}\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
     "				{{data.title}}\n" +
     "			</div>\n" +
     "		</div>\n" +
@@ -111,32 +230,20 @@ angular.module("menu_left/template/drive_slide.tpl.html", []).run(["$templateCac
     "");
 }]);
 
-angular.module("menu_left/template/hand_write.tpl.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("menu_left/template/hand_write.tpl.html",
-    "<div ng-swipe-up=\"checkSwipe(false)\" ng-swipe-down=\"checkSwipe(true)\">\n" +
-    "	<div style=\"display:none;\">\n" +
-    "		<canvas id=\"data\"/>\n" +
-    "	</div>\n" +
-    "\n" +
-    "	<div class=\"pad\">\n" +
-    "		<canvas id=\"draw\" hand-writer text=\"{{text}}\" send=\"{{isSend}}\"></canvas>\n" +
-    "		<input id=\"textbox\" ng-model=\"text\">\n" +
-    "	</div>\n" +
-    "	<div class=\"toolbar\" ng-hide=\"isHide\">\n" +
-    "		<button ng-repeat=\"t in tools\" ng-click=\"changeTool($index)\">{{t}}</button>\n" +
-    "		<button ng-repeat=\"a in attrs\" ng-click=\"changeAttr($index)\">{{a}}</button>\n" +
-    "	</div>\n" +
-    "	\n" +
-    "</div>");
-}]);
-
 angular.module("menu_left/template/home_student.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/home_student.tpl.html",
-    "<div>\n" +
-    "	<select ng-model=\"room\" ng-options=\"room for room in rooms\"></select>\n" +
+    "<div class=\"container\">\n" +
+    "	<!-- <select ng-model=\"room\" ng-options=\"room for room in rooms\"></select> -->\n" +
     "	<button ng-click=\"list()\">List</button>		\n" +
     "	<button ng-click=\"connect()\">Connect</button>		\n" +
     "	<button ng-click=\"disconnect()\">Disconnect</button>\n" +
+    "\n" +
+    "	<div ng-repeat=\"room in rooms\">\n" +
+    "		<div class=\"well\" ng-class=\"{selected: selected==$index}\" ng-click=\"select($index)\">\n" +
+    "			<img ng-src=\"{{room.display}}\"/>\n" +
+    "			{{room.name}}\n" +
+    "		</div>\n" +
+    "	</div>\n" +
     "</div>\n" +
     "");
 }]);
@@ -144,9 +251,21 @@ angular.module("menu_left/template/home_student.tpl.html", []).run(["$templateCa
 angular.module("menu_left/template/home_teacher.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/home_teacher.tpl.html",
     "<div>\n" +
-    "	<input type=\"text\" ng-model=\"room\">\n" +
-    "	<button ng-click=\"create()\">Create Room</button>\n" +
-    "	<button ng-click=\"close()\">Close Room</button>\n" +
+    "	<div style=\"float:left;\">\n" +
+    "		<label>Name</label>\n" +
+    "		<input type=\"text\" ng-model=\"room\">\n" +
+    "		<div>\n" +
+    "			<label>Description</label><br/>\n" +
+    "			<textarea style=\"width:200;height:200;\" class=\"block\" placeholder=\"Input detail\"></textarea>	\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "	<div style=\"float:right;\">\n" +
+    "		<img class=\"display\" ng-src=\"{{display}}\" ng-click=\"selectDisplay()\"/>\n" +
+    "		<div>\n" +
+    "			<button ng-click=\"create()\">Create Room</button>\n" +
+    "			<button ng-click=\"close()\">Close Room</button>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
     "</div>");
 }]);
 
@@ -171,61 +290,70 @@ angular.module("menu_left/template/quiz_student.tpl.html", []).run(["$templateCa
 angular.module("menu_left/template/quiz_teacher.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/quiz_teacher.tpl.html",
     "<div>\n" +
-    "	<div ng-repeat=\"q in quiz\">\n" +
-    "		<div>\n" +
-    "			{{q.question}}\n" +
-    "		</div>\n" +
-    "		<div ng-repeat=\"answer in q.answer\">\n" +
-    "			{{answer.n}}\n" +
-    "			{{answer.name}}\n" +
-    "		</div>\n" +
-    "	</div>\n" +
+    "	<button style=\"display:inline;\" ng-repeat=\"q in quiz\" ng-click=\"changeIndex($index)\">{{$index}}</button>\n" +
+    "	<highchart class=\"fit-height\" config=\"chartConfig\" ></highchart>\n" +
     "</div>");
 }]);
 
-angular.module("menu_left/template/slide.tpl.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("menu_left/template/slide.tpl.html",
-    "<div ng-swipe-up=\"checkSwipe(false)\" ng-swipe-down=\"checkSwipe(true)\">\n" +
+angular.module("menu_left/template/slide_pad.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/slide_pad.tpl.html",
+    "<div ng-swipe-up=\"checkToolSwipe(false)\" ng-swipe-down=\"checkToolSwipe(true)\" ng-swipe-left=\"checkMenuSwipe(false)\" ng-swipe-right=\"checkMenuSwipe(true)\">\n" +
     "\n" +
-    "	<div class=\"pad\">\n" +
-    "		<div class=\"control-area\" ng-show=\"isShow\" ng-click=\"prevIndex(false)\"></div>\n" +
-    "		<div class=\"control-area\" ng-show=\"isShow\" ng-click=\"nextIndex(false)\"></div>\n" +
-    "		<div class=\"mirror\" fit-size>\n" +
-    "			<canvas id=\"mirror-1\" hand-writer text=\"{{text}}\" send=\"{{isSend}}\">\n" +
-    "			</canvas>	\n" +
-    "			<input 	id=\"textbox\" ng-model=\"text\">	\n" +
-    "		</div>	\n" +
-    "		<div class=\"slide-pad\" fit-size>\n" +
-    "			<slide send=\"{{isSend}}\"></slide>\n" +
+    "	<div is-visible=\"isDesktop\" class=\"visible-md visible-lg\"></div>\n" +
+    "\n" +
+    "	<div class=\"row\">\n" +
+    "		<div class=\"pad col-md-9 col-lg-9\">\n" +
+    "			<div class=\"control-area\" ng-show=\"isShow\" ng-click=\"prevIndex(false)\"></div>\n" +
+    "			<div class=\"control-area\" ng-show=\"isShow\" ng-click=\"nextIndex(false)\"></div>\n" +
+    "			<div class=\"mirror\" fit-size>\n" +
+    "				<canvas id=\"mirror-1\" draw-pad text=\"{{text}}\" send=\"isSend\">\n" +
+    "				</canvas>\n" +
+    "				<input 	id=\"textbox\" ng-model=\"text\">\n" +
+    "				<tool-bar class=\"toolbar\" tool=\"tool\" is-hide=\"{{hideTool&&!isDesktop}}\"></tool-bar>\n" +
+    "			</div>\n" +
+    "			<div class=\"slide-pad\" fit-size>\n" +
+    "				<slide-pad send=\"isSend\"></slide-pad>\n" +
+    "			</div>\n" +
+    "		</div>\n" +
+    "\n" +
+    "		<div ng-if=\"isDesktop\" class=\"col-md-3 col-lg-3 fit-height\">\n" +
+    "			<chat class=\"well\"></chat>\n" +
+    "		</div>\n" +
+    "		<div ng-if=\"!isDesktop\" ng-hide=\"hideMenu\" class=\"nav-right\">\n" +
+    "			<chat></chat>\n" +
     "		</div>\n" +
     "	</div>\n" +
     "\n" +
-    "	<div class=\"toolbar\" style=\"position: absolute;z-index=99\">\n" +
-    "		<div>\n" +
-    "			<button ng-click=\"prevIndex(true)\" ng-hide=\"isStart\">Prev</button>\n" +
-    "			<button ng-click=\"nextIndex(true)\" ng-hide=\"isEnd\">Next</button>\n" +
-    "		</div>\n" +
-    "		<div ng-hide=\"isHide\">\n" +
-    "			<button ng-repeat=\"t in tools\" ng-click=\"changeTool($index)\">{{t}}</button>\n" +
-    "			<button ng-repeat=\"a in attrs\" ng-click=\"changeAttr($index)\">{{a}}</button>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
     "	\n" +
+    "</div>");
+}]);
+
+angular.module("menu_left/template/tool_bar.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/tool_bar.tpl.html",
+    "<div ng-hide=\"isHide\">\n" +
+    "	<div class=\"tool\">\n" +
+    "		<button ng-repeat=\"tool in toolLeft\" ng-click=\"changeToolLeft($index)\">{{tool}}</button>\n" +
+    "	</div>\n" +
+    "\n" +
+    "	<selector class=\"attr\"></selector>		\n" +
+    "\n" +
+    "	<div class=\"tool\">\n" +
+    "		<button ng-repeat=\"tool in toolRight\" ng-click=\"changeToolRight($index)\">{{tool}}</button>\n" +
+    "	</div>\n" +
     "</div>");
 }]);
 
 angular.module("menu_right/template/chat.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_right/template/chat.tpl.html",
     "<div>\n" +
-    "	<div class=\"chat-box\">\n" +
-    "		<div ng-repeat=\"msg in msgs\">\n" +
+    "	<div class=\"chat-box list\" scroll-bar>\n" +
+    "		<div ng-repeat=\"msg in msgs track by $index\">\n" +
     "			<img ng-src=\"{{msg}}\" class=\"emotion\">\n" +
     "		</div>\n" +
     "	</div>\n" +
-    "	<!-- <button ng-click=\"sendMsg()\">Send</button>\n" +
-    "	<input type=\"text\" ng-model=\"text\"> -->\n" +
-    "	<div class=\"emoticon-box\">\n" +
-    "		<emoticon emotion=\"img\"></emoticon>\n" +
+    "\n" +
+    "	<div class=\"emoticon-box\" scroll-bar>\n" +
+    "		<img class=\"fit-height\" ng-repeat=\"emo in emotions\" ng-src=\"{{url+emo}}\" ng-click=\"select($index)\">\n" +
     "	</div>\n" +
     "</div>\n" +
     "");
@@ -233,7 +361,7 @@ angular.module("menu_right/template/chat.tpl.html", []).run(["$templateCache", f
 
 angular.module("menu_right/template/group.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_right/template/group.tpl.html",
-    "<div>\n" +
+    "<div class=\"well fit-height list\" scroll-bar>\n" +
     "	<div ng-repeat=\"group in groups\">\n" +
     "		\n" +
     "		<div class=\"well\">\n" +

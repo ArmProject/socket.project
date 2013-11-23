@@ -1,9 +1,9 @@
-app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFactory, Input, Room, DataManager) {
+app.directive("drawPad", function($rootScope, $window, $timeout, DrawManager, DrawFactory, Input, Room, DataManager) {
 	return {
 		restrict: 'A',
 		scope: {
 			text: '@',
-			send: '@'
+			send: '='
 		},
 		link: function(scope, iElement, iAttr) {
 			var type = DataManager.types.POS;
@@ -11,6 +11,7 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 			DrawManager.init(id);
 
 			function sendData(obj) {
+				console.log(scope.send)
 				if (scope.send) {
 					obj.name = DrawManager.getName();
 					DataManager.setData(type, obj);
@@ -28,14 +29,14 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 						}
 					}
 				}
-				DrawManager.setCurrent(id)
+				DrawManager.setCurrent(id);
 			}
 
 			function draw(data) {
 				var pos = data.pos;
 				var id = data.user ? data.user.id : undefined;
 				DrawManager.newGroup(id);
-				setCurrent(data.user)
+				setCurrent(data.user);
 
 				DrawManager.setStrokeColor(pos.color);
 				DrawManager.setStrokeSize(pos.size);
@@ -46,7 +47,7 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				var pos = data.pos;
 				var id = data.user ? data.user.id : undefined;
 				DrawManager.newGroup(id);
-				setCurrent(data.user)
+				setCurrent(data.user);
 
 				DrawManager.setStrokeColor(pos.color);
 				DrawManager.setStrokeSize(pos.size);
@@ -58,7 +59,7 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 				var pos = data.pos;
 				var id = data.user ? data.user.id : undefined;
 				DrawManager.newGroup(id);
-				setCurrent(data.user)
+				setCurrent(data.user);
 
 				DrawManager.setFillColor(pos.color);
 				DrawManager.setFontSize(pos.size);
@@ -185,18 +186,18 @@ app.directive("handWriter", function($rootScope, $timeout, DrawManager, DrawFact
 			$rootScope.$on('tool', function(e, tool) {
 				scope.tool = tool;
 				// if (scope.tool != null) {
-					Input.hide();
-					DrawFactory.setTool(tool);
+				Input.hide();
+				DrawFactory.setTool(tool);
 				// 	scope.tool = null;
 				// }
 			});
-			$rootScope.$on('attr', function(e, attr) {
-				var callback = {};
-				callback.strokeColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
-				callback.fillColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
-				callback.strokeSize = Math.floor(Math.random() * 10) + 4;
-				callback.fontSize = Math.floor(Math.random() * 20) + 28;
-				DrawFactory.setAttr(attr, callback);
+			$rootScope.$on('attr', function(e, obj) {
+				// var callback = {};
+				// callback.strokeColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+				// callback.fillColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+				// callback.strokeSize = Math.floor(Math.random() * 10) + 4;
+				// callback.fontSize = Math.floor(Math.random() * 20) + 28;
+				DrawFactory.setAttr(obj.attr, obj.data);
 			});
 			$rootScope.$on("$stateChangeSuccess", function($currentRoute, $previousRoute) {
 				DrawManager.saveData();

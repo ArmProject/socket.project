@@ -10,10 +10,11 @@ var Logger = function() {
 	var data = {};
 	var room;
 	this.logData = data;
-	this.init = function(rm) {
+	this.init = function(name, rm) {
 		room = rm;
 		if (!(room in data)) {
-			data[room] = {
+			data[name] = {
+				room: room,
 				users: {},
 				msgs: [],
 				pos: []
@@ -55,7 +56,7 @@ var Logger = function() {
 		}
 	}
 
-	this.save = function() {
+	this.save = function(room) {
 		// var xml = builder.create("data");	
 		// console.log(data[room].pos)
 		if (data[room]) {
@@ -90,54 +91,80 @@ io.sockets.on('connection', function(socket) {
 
 		console.log("User : '" + user.username + "' join Room : '" + room + "'")
 	}
+
+	function logOutUser(room) {
+		var users = logger.logData[room].users;
+
+		function getUserName(id) {
+			for (name in users) {
+				if (users[name].id == id) {
+					return name;
+				}
+			}
+			return "";
+		}
+		var clients = io.sockets.clients(room)
+		if (clients) {
+			for (var i = 0; i < clients.length; i++) {
+				var name = getUserName(clients[i].id);
+				socket.set('userName', name);
+				clients[i].disconnect();
+			}
+			logger.save(room);
+		}
+	}
+
 	socket.on('list:room', function(data, callback) {
 		var host = io.sockets.manager.rooms;
 		var rooms = [];
 		for (var name in host) {
 			if (name != "") {
-				rooms.push(name.slice(1));
+				name = name.slice(1);
+				var room = logger.logData[name];
+				if (room) {
+					rooms.push(room.room);
+				}
 			}
 		}
 		callback(rooms);
 	});
 	socket.on('connect:room', function(data, callback) {
-		var room = data.room == "" ? "" : "/" + data.room;
+		var name = data.room.name;
+		var room = name == "" ? "" : "/" + name;
 		if (room in io.sockets.manager.rooms) {
-			socket.set('roomName', data.room);
+			socket.set('roomName', name);
 
-			if (data.room == "" || data.room == "/") {
-				logger.init(data.room);
+			if (name == "" || name == "/") {
+				logger.init(name, data.room);
 			}
-			loginUser(data.room, data.user);
+			loginUser(name, data.user);
 			callback(getId());
 		}
 	});
 	socket.on('create:room', function(data) {
-		socket.set('roomName', data.room, function() {
-			logger = new Logger();
-			logger.init(data.room);
-			console.log("Create Room : '" + data.room + "'");
+		var name = data.room.name;
+		socket.set('roomName', name, function() {
+			// logger = new Logger();
 
-			loginUser(data.room, data.user);
+			logger.init(name, data.room);
+			console.log("Create Room : '" + name + "'");
+
+			loginUser(name, data.user);
 
 		});
 	});
 	socket.on('close:room', function(data, callback) {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
-				var clients = io.sockets.clients(room)
-				if (clients) {
+				logOutUser(room);
+
+				if (callback) {
 					callback(logger.getEmails());
-					
-					for (var i = 0; i < clients.length; i++) {
-						clients[i].disconnect();
-					}
-					logger.save();
 				}
 			}
 		});
 	});
-	socket.on('leave:room', function() {
+	socket.on('disconnect:room', function() {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
 				socket.get('userName', function(err, user) {
@@ -152,9 +179,15 @@ io.sockets.on('connection', function(socket) {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
 				socket.get('userName', function(err, user) {
+					var owner = logger.logData[room].room.owner;
+					if (user == owner) {
+						logOutUser(room);
+					}
+
 					console.log("User : " + user + " disconnect");
 					socket.leave(room)
 					socket.broadcast.to(room).emit('leave:room', getId());
+
 				});
 			}
 		});

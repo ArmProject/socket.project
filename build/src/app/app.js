@@ -1,5 +1,6 @@
-var app = angular.module('socket', ['templates-app',
-	'templates-common', 'ui.router', 'ngGesture', 'chieffancypants.loadingBar'
+var app = angular.module('socket', ['templates-app', 'templates-common',
+	'ui.router', 'ui.bootstrap', 'ngGesture', 'chieffancypants.loadingBar',
+	'colorpicker.module', 'highcharts-ng'
 ]);
 
 app.constant('host_node', 'http://localhost:8080');
@@ -7,36 +8,39 @@ app.constant('host_drupal', 'http://10.16.86.131');
 
 app.config(function(cfpLoadingBarProvider) {
 	cfpLoadingBarProvider.includeSpinner = false;
-})
+});
 
 app.config(function($stateProvider, $urlRouterProvider) {
-	$urlRouterProvider.otherwise('login');
+	$urlRouterProvider.otherwise('main');
 	$stateProvider.state('main', {
 		url: "/main",
-		templateUrl: 'main/template/main.tpl.html'
-	}).state('login', {
-		url: "/login",
-		templateUrl: 'main/template/login.tpl.html',
-		controller: 'LoginCtrl'
+		templateUrl: 'main/template/main.tpl.html',
+		controller: 'MainCtrl'
 	}).state('main.draw', {
 		url: '/draw',
-		templateUrl: 'menu_left/template/hand_write.tpl.html',
+		templateUrl: 'menu_left/template/draw_pad.tpl.html',
 		controller: 'HandWriteCtrl'
 	}).state('main.drive', {
 		url: '/drive',
-		templateUrl: 'menu_left/template/drive.tpl.html',
+		templateUrl: 'menu_left/template/drive.tpl.html'
+	}).state('main.home', {
+		url: '/home',
+		controller: 'AccessCtrl'
 	}).state('main.home_teacher', {
 		url: '/home/teacher',
 		templateUrl: 'menu_left/template/home_teacher.tpl.html',
-		controller: 'RoomCtrl'
+		controller: 'HomeTeacherCtrl'
 	}).state('main.home_student', {
 		url: '/home/student',
 		templateUrl: 'menu_left/template/home_student.tpl.html',
-		controller: 'RoomCtrl'
+		controller: 'HomeStudentCtrl'
 	}).state('main.slide', {
 		url: '/slide',
-		templateUrl: 'menu_left/template/slide.tpl.html',
+		templateUrl: 'menu_left/template/slide_pad.tpl.html',
 		controller: 'SlideCtrl'
+	}).state('main.quiz', {
+		url: '/quiz',
+		controller: 'AccessCtrl'
 	}).state('main.quiz_teacher', {
 		url: '/quiz/teacher',
 		templateUrl: 'menu_left/template/quiz_teacher.tpl.html',
@@ -47,13 +51,15 @@ app.config(function($stateProvider, $urlRouterProvider) {
 		controller: 'QuizStudentCtrl'
 	});
 
-}).run(function($rootScope, $state, LoginManager) {
-	// $rootScope.$on("$stateChangeStart", function($currentRoute, $previousRoute) {
-	// 	var user = LoginManager.getUser();
-	// 	if (!user) {
-	// 		$state.go('login');
-	// 	}
-	// });
+}).run(function($rootScope, $modal, LoginManager) {
+	$rootScope.$on("$stateChangeSuccess", function($currentRoute, $previousRoute) {
+		if (LoginManager.hasLogin()) {
+			$modal.open({
+				templateUrl: 'main/template/login.tpl.html',
+				controller: 'LoginCtrl'
+			});
+		}
+	});
 });
 
 app.factory('Socket', function($rootScope, host_node) {
@@ -96,7 +102,8 @@ app.factory("DataManager", function(Canvas, Socket) {
 		types: {
 			POS: "pos",
 			SLIDE: "slide",
-			QUIZ: "quiz"
+			QUIZ: "quiz",
+			MSG: "msg"
 		},
 		initData: function(type) {
 			Socket.emit("init:" + type);
@@ -159,7 +166,7 @@ app.service("Canvas", function($q) {
 	this.types = {
 		DRAW: "draw",
 		MIRROR: "mirror"
-	}
+	};
 
 	this.newCanvas = function(id, w, h) {
 		$('#' + id)[0].width = w;

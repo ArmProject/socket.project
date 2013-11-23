@@ -20,16 +20,16 @@ module.exports = {
    * app's unit tests.
    */
   app_files: {
-    js: [ 'src/**/*.js', '!src/**/*.spec.js','!src/server/**/*.js'],
-    jsunit: [ 'src/**/*.spec.js' ],
-    
-    coffee: [ 'src/**/*.coffee', '!src/**/*.spec.coffee' ],
-    coffeeunit: [ 'src/**/*.spec.coffee' ],
+    js: ['src/**/*.js', '!src/**/*.spec.js', '!src/server/**/*.js', '!src/common/**'],
+    jsunit: ['src/**/*.spec.js'],
 
-    atpl: [ 'src/app/**/**/*.tpl.html' ],
-    ctpl: [ 'src/common/**/*.tpl.html' ],
+    coffee: ['src/**/*.coffee', '!src/**/*.spec.coffee'],
+    coffeeunit: ['src/**/*.spec.coffee'],
 
-    html: [ 'src/index.html' ],
+    atpl: ['src/app/**/**/*.tpl.html'],
+    ctpl: ['src/common/**/*.tpl.html'],
+
+    html: ['src/index.html'],
     less: 'src/less/main.less',
   },
 
@@ -50,15 +50,15 @@ module.exports = {
   vendor_files: {
     js: [
       'vendor/socket.io/index.js',
-      'vendor/kineticjs/index.js',
-      'vendor/jquery/jquery.min.js',
       'vendor/fabric/dist/all.min.js',
+      'vendor/jquery/jquery.min.js',
       'vendor/angular/angular.min.js',
+      'vendor/angular-ui-router/release/angular-ui-router.min.js',
+      'vendor/angular-bootstrap/ui-bootstrap-tpls.js',
       'vendor/angular-gesture/pointerevents.js',
       'vendor/angular-gesture/ngGesture/gesture.js',
       'vendor/angular-gesture/ngGesture/directive/ngSwipe.js',
       'vendor/angular-gesture/ngGesture/directive/ngTouch.js',
-      'vendor/angular-ui-router/release/angular-ui-router.min.js',
       'vendor/bootstrap/dist/js/bootstrap.min.js',
       'vendor/bootstrap/dist/css/bootstrap.min.css',
       'vendor/google_api/index.js',
@@ -68,9 +68,23 @@ module.exports = {
       'vendor/pdf.js/web/compatibility.js',
       'vendor/jspdf/index.js',
       'vendor/angular-loading-bar/build/loading-bar.min.css',
-      'vendor/angular-loading-bar/build/loading-bar.min.js'
+      'vendor/angular-loading-bar/build/loading-bar.min.js',
+      'vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.min.css',
+      'vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.with-mousewheel.min.js',
+      'vendor/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js',
+      'vendor/angular-bootstrap-colorpicker/css/colorpicker.css',
+      'vendor/bootstrap-slider/bootstrap-slider.js',
+      'vendor/bootstrap-slider/slider.css',
+      'vendor/highcharts/index.js',
+      'vendor/highcharts-ng/src/directives/highcharts-ng.js',
+
+      'vendor/ace/assets/js/ace.min.js',
+      'vendor/ace/assets/js/ace-elements.min.js',
+      'vendor/ace/assets/js/ace-extra.min.js',
+      'vendor/ace/assets/css/ace.min.css',
+      'vendor/ace/assets/css/ace-rtl.min.css',
+      'vendor/ace/assets/css/ace-skins.min.css',
     ],
-    css: [
-    ]
+    css: []
   },
 };

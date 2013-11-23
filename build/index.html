@@ -5,19 +5,32 @@
 		
     	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/dist/css/bootstrap.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/angular-loading-bar/build/loading-bar.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/angular-bootstrap-colorpicker/css/colorpicker.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/bootstrap-slider/slider.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace-rtl.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace-skins.min.css" />
     	<link rel="stylesheet" type="text/css" href="assets/socket.css" />
 	
 		
+	</head>
+
+	<body ng-app="socket">
+
+		<ui-view></ui-view>
+    
+		
 		<script type="text/javascript" src="vendor/socket.io/index.js"></script>
-		<script type="text/javascript" src="vendor/kineticjs/index.js"></script>
-		<script type="text/javascript" src="vendor/jquery/jquery.min.js"></script>
 		<script type="text/javascript" src="vendor/fabric/dist/all.min.js"></script>
+		<script type="text/javascript" src="vendor/jquery/jquery.min.js"></script>
 		<script type="text/javascript" src="vendor/angular/angular.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-ui-router/release/angular-ui-router.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 		<script type="text/javascript" src="vendor/angular-gesture/pointerevents.js"></script>
 		<script type="text/javascript" src="vendor/angular-gesture/ngGesture/gesture.js"></script>
 		<script type="text/javascript" src="vendor/angular-gesture/ngGesture/directive/ngSwipe.js"></script>
 		<script type="text/javascript" src="vendor/angular-gesture/ngGesture/directive/ngTouch.js"></script>
-		<script type="text/javascript" src="vendor/angular-ui-router/release/angular-ui-router.min.js"></script>
 		<script type="text/javascript" src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="vendor/google_api/index.js"></script>
 		<script type="text/javascript" src="vendor/google_plus/index.js"></script>
@@ -26,16 +39,23 @@
 		<script type="text/javascript" src="vendor/pdf.js/web/compatibility.js"></script>
 		<script type="text/javascript" src="vendor/jspdf/index.js"></script>
 		<script type="text/javascript" src="vendor/angular-loading-bar/build/loading-bar.min.js"></script>
+		<script type="text/javascript" src="vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.with-mousewheel.min.js"></script>
+		<script type="text/javascript" src="vendor/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
+		<script type="text/javascript" src="vendor/bootstrap-slider/bootstrap-slider.js"></script>
+		<script type="text/javascript" src="vendor/highcharts/index.js"></script>
+		<script type="text/javascript" src="vendor/highcharts-ng/src/directives/highcharts-ng.js"></script>
+		<script type="text/javascript" src="vendor/ace/assets/js/ace.min.js"></script>
+		<script type="text/javascript" src="vendor/ace/assets/js/ace-elements.min.js"></script>
+		<script type="text/javascript" src="vendor/ace/assets/js/ace-extra.min.js"></script>
 		<script type="text/javascript" src="src/app/app.js"></script>
 		<script type="text/javascript" src="src/app/main/controller.js"></script>
 		<script type="text/javascript" src="src/app/main/main.js"></script>
 		<script type="text/javascript" src="src/app/menu_left/controller.js"></script>
+		<script type="text/javascript" src="src/app/menu_left/draw_pad.js"></script>
 		<script type="text/javascript" src="src/app/menu_left/drive.js"></script>
-		<script type="text/javascript" src="src/app/menu_left/hand_write.js"></script>
-		<script type="text/javascript" src="src/app/menu_left/slide.js"></script>
-		<script type="text/javascript" src="src/app/menu_left/text_write.js"></script>
+		<script type="text/javascript" src="src/app/menu_left/slide_pad.js"></script>
+		<script type="text/javascript" src="src/app/menu_left/tool_bar.js"></script>
 		<script type="text/javascript" src="src/app/menu_right/chat.js"></script>
-		<script type="text/javascript" src="src/app/menu_right/controller.js"></script>
 		<script type="text/javascript" src="src/app/menu_right/group.js"></script>
 		<script type="text/javascript" src="src/app/service/draw_factory.js"></script>
 		<script type="text/javascript" src="src/app/service/draw_manager.js"></script>
@@ -47,12 +67,5 @@
 		<script type="text/javascript" src="src/app/service/slide_manager.js"></script>
 		<script type="text/javascript" src="templates-common.js"></script>
 		<script type="text/javascript" src="templates-app.js"></script>		
-		
-	</head>
-
-	<body ng-app="socket">
-
-		<ui-view></ui-view>
-    
 	</body>
 </html>
