@@ -1,4 +1,4 @@
-angular.module('templates-app', ['main/template/login.tpl.html', 'main/template/main.tpl.html', 'main/template/menu_left.tpl.html', 'menu_left/template/attribute.tpl.html', 'menu_left/template/display.tpl.html', 'menu_left/template/draw_pad.tpl.html', 'menu_left/template/drive.tpl.html', 'menu_left/template/drive_quiz.tpl.html', 'menu_left/template/drive_slide.tpl.html', 'menu_left/template/home_student.tpl.html', 'menu_left/template/home_teacher.tpl.html', 'menu_left/template/quiz_student.tpl.html', 'menu_left/template/quiz_teacher.tpl.html', 'menu_left/template/slide_pad.tpl.html', 'menu_left/template/tool_bar.tpl.html', 'menu_right/template/chat.tpl.html', 'menu_right/template/group.tpl.html']);
+angular.module('templates-app', ['main/template/login.tpl.html', 'main/template/main.tpl.html', 'main/template/menu_left.tpl.html', 'menu_left/template/attribute.tpl.html', 'menu_left/template/detail.tpl.html', 'menu_left/template/display.tpl.html', 'menu_left/template/draw_pad.tpl.html', 'menu_left/template/drive.tpl.html', 'menu_left/template/drive_quiz.tpl.html', 'menu_left/template/drive_slide.tpl.html', 'menu_left/template/home_student.tpl.html', 'menu_left/template/home_teacher.tpl.html', 'menu_left/template/quiz_student.tpl.html', 'menu_left/template/quiz_teacher.tpl.html', 'menu_left/template/slide_pad.tpl.html', 'menu_left/template/tool_bar.tpl.html', 'menu_right/template/chat.tpl.html', 'menu_right/template/group.tpl.html']);
 
 angular.module("main/template/login.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("main/template/login.tpl.html",
@@ -55,15 +55,16 @@ angular.module("main/template/menu_left.tpl.html", []).run(["$templateCache", fu
     "		<a ui-sref=\"main.slide\">Slide</a>\n" +
     "		<a ui-sref=\"main.quiz\">Quiz</a> -->\n" +
     "		<ul class=\"nav ace-nav\">\n" +
-    "			<li class=\"light-orange\"><a ui-sref=\"main.home\">Home</a></li>\n" +
-    "			<li class=\"light-purple\"><a ui-sref=\"main.drive\">Drive</a></li>\n" +
-    "			<li class=\"light-pink\"><a ui-sref=\"main.draw\">Draw</a></li>\n" +
-    "			<li class=\"dark-opaque\"><a ui-sref=\"main.slide\">Slide</a></li>\n" +
-    "			<li class=\"white-opaque\"><a ui-sref=\"main.quiz\">Quiz</a></li>\n" +
+    "			<li class=\"nav-tab light-orange\"><a ui-sref=\"main.home\">Home</a></li>\n" +
+    "			<li class=\"nav-tab light-purple\"><a ui-sref=\"main.drive\">Drive</a></li>\n" +
+    "			<li class=\"nav-tab light-pink\"><a ui-sref=\"main.draw\">Draw</a></li>\n" +
+    "			<li class=\"nav-tab dark-opaque\"><a ui-sref=\"main.slide\">Slide</a></li>\n" +
+    "			<li class=\"nav-tab white-opaque\"><a ui-sref=\"main.quiz\">Quiz</a></li>\n" +
     "		</ul>\n" +
     "	</div>\n" +
     "	<div class=\"navbar-header pull-right\">\n" +
-    "		<span>{{name}}</span>\n" +
+    "		<span>{{roomName}}</span>\n" +
+    "		<span>{{userName}}</span>\n" +
     "		<button class=\"inline\" ng-click=\"logout()\">logout</button>\n" +
     "		<iframe id=\"logout\" ng-src=\"{{url}}\" style=\"display:none;\"></iframe>\n" +
     "	</div>\n" +
@@ -144,6 +145,29 @@ angular.module("menu_left/template/attribute.tpl.html", []).run(["$templateCache
     "");
 }]);
 
+angular.module("menu_left/template/detail.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/detail.tpl.html",
+    "<div class=\"modal-dialog\">\n" +
+    "	<div class=\"modal-content\">\n" +
+    "		<div class=\"modal-body\">\n" +
+    "			<img class=\"width-20\" ng-src=\"{{room.display}}\"/>\n" +
+    "			<div class=\"inline\">\n" +
+    "				<span>Name :</span>\n" +
+    "				<span>{{room.name}}</span>\n" +
+    "				<div>\n" +
+    "					<button class=\"inline btn\" ng-click=\"ok()\">Ok</button>\n" +
+    "					<button class=\"inline btn\" ng-click=\"cancel()\">Cancel</button>\n" +
+    "				</div>\n" +
+    "			</div>\n" +
+    "			<div>\n" +
+    "				<span>Description :</span><br/>\n" +
+    "				<span>{{room.description}}</span>\n" +
+    "			</div>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "</div>");
+}]);
+
 angular.module("menu_left/template/display.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/display.tpl.html",
     "<div class=\"modal-dialog\">\n" +
@@ -187,13 +211,19 @@ angular.module("menu_left/template/draw_pad.tpl.html", []).run(["$templateCache"
 
 angular.module("menu_left/template/drive.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/drive.tpl.html",
-    "<div  class=\"container fit-height\">\n" +
-    "	<ul ng-init=\"tab = 'slide'\">\n" +
-    "		<li><a ng-click=\"tab = 'slide'\">Slide</a></li>\n" +
-    "		<li><a ng-click=\"tab = 'quiz'\">Quiz</a></li>\n" +
-    "	</ul>\n" +
+    "<div class=\"widget-box\">\n" +
+    "	<div class=\"widget-header\">\n" +
+    "		<div class=\"inline\" ng-init=\"tab = 'slide'\">\n" +
+    "			<button class=\"btn btn-app btn-xs no-radius\" ng-click=\"tab = 'slide'\">Slide</a></li>\n" +
+    "			<button class=\"btn btn-app btn-xs no-radius\" ng-click=\"tab = 'quiz'\">Quiz</a></li>\n" +
+    "		</div>\n" +
+    "		<div class=\"widget-toolbar\">\n" +
+    "			<button class=\"btn btn-xs bigger\" ng-click=\"saveSlide()\">Save Slide</button>\n" +
+    "			<button class=\"btn btn-xs bigger\" ng-click=\"saveDraw()\">Save Draw</button>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
     "\n" +
-    "	<div ng-switch on=\"tab\">\n" +
+    "	<div class=\"widget-body\" ng-switch on=\"tab\">\n" +
     "		<drive-slide ng-switch-when=\"slide\"></drive-slide>\n" +
     "		<drive-quiz ng-switch-when=\"quiz\"></drive-quiz>\n" +
     "	</div>\n" +
@@ -213,20 +243,22 @@ angular.module("menu_left/template/drive_quiz.tpl.html", []).run(["$templateCach
 
 angular.module("menu_left/template/drive_slide.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/drive_slide.tpl.html",
-    "<div>\n" +
-    "	<div style=\"display:none;\">\n" +
-    "		<canvas id=\"data\"/>\n" +
-    "	</div>\n" +
-    "	<button class=\"btn\" ng-click=\"saveSlide()\">Save Slide</button>\n" +
-    "	<button class=\"btn\" ng-click=\"saveDraw()\">Save Draw</button>\n" +
-    "	<div class=\"container fit-height list\" scroll-bar>\n" +
-    "		<div class=\"row\">\n" +
-    "			<div class=\"well col-lg-8\" ng-class=\"{selected: selected==$index}\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
-    "				{{data.title}}\n" +
-    "			</div>\n" +
+    "	<!-- <div class=\"widget-body\"> -->\n" +
+    "\n" +
+    "		<div style=\"display:none;\">\n" +
+    "			<canvas id=\"data\"/>\n" +
+    "		</div>		\n" +
+    "		<div class=\"list fit-height\" scroll-bar>\n" +
+    "			<!-- <div class=\"tab-pane active\"> -->\n" +
+    "			<ul class=\"item-list\">\n" +
+    "				<li class=\"item-grey clearfix\" ng-class=\"{selected: selected==$index}\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
+    "					{{data.title}}\n" +
+    "				</li>\n" +
+    "			</ul>\n" +
+    "			<!-- </div> -->\n" +
     "		</div>\n" +
-    "	</div>\n" +
-    "</div>\n" +
+    "\n" +
+    "	<!-- </div> -->\n" +
     "");
 }]);
 
@@ -234,14 +266,15 @@ angular.module("menu_left/template/home_student.tpl.html", []).run(["$templateCa
   $templateCache.put("menu_left/template/home_student.tpl.html",
     "<div class=\"container\">\n" +
     "	<!-- <select ng-model=\"room\" ng-options=\"room for room in rooms\"></select> -->\n" +
-    "	<button ng-click=\"list()\">List</button>		\n" +
-    "	<button ng-click=\"connect()\">Connect</button>		\n" +
-    "	<button ng-click=\"disconnect()\">Disconnect</button>\n" +
-    "\n" +
-    "	<div ng-repeat=\"room in rooms\">\n" +
-    "		<div class=\"well\" ng-class=\"{selected: selected==$index}\" ng-click=\"select($index)\">\n" +
-    "			<img ng-src=\"{{room.display}}\"/>\n" +
-    "			{{room.name}}\n" +
+    "	<button class=\"btn btn-app\" ng-click=\"list()\">List</button>		\n" +
+    "	<button class=\"btn btn-app\" ng-click=\"connect()\">Connect</button>		\n" +
+    "	<button class=\"btn btn-app\" ng-click=\"disconnect()\">Disconnect</button>\n" +
+    "	<div class=\"room-list\">\n" +
+    "		<div class=\"infobox infobox-dark\" ng-repeat=\"room in rooms\" ng-class=\"{'infobox-blue3': selected==$index,'infobox-blue': selected!=$index}\" ng-click=\"showDetail($index)\">\n" +
+    "			<div class=\"infobox-data\">\n" +
+    "				<img class=\"fit-height\" ng-src=\"{{room.display}}\"/>\n" +
+    "				<span>{{room.name}}</span>\n" +
+    "			</div>\n" +
     "		</div>\n" +
     "	</div>\n" +
     "</div>\n" +
@@ -251,15 +284,15 @@ angular.module("menu_left/template/home_student.tpl.html", []).run(["$templateCa
 angular.module("menu_left/template/home_teacher.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/home_teacher.tpl.html",
     "<div>\n" +
-    "	<div style=\"float:left;\">\n" +
+    "	<div class=\"pull-left\">\n" +
     "		<label>Name</label>\n" +
     "		<input type=\"text\" ng-model=\"room\">\n" +
     "		<div>\n" +
     "			<label>Description</label><br/>\n" +
-    "			<textarea style=\"width:200;height:200;\" class=\"block\" placeholder=\"Input detail\"></textarea>	\n" +
+    "			<textarea style=\"width:200;height:200;\" class=\"block\" placeholder=\"Input detail\" ng-model=\"description\"></textarea>	\n" +
     "		</div>\n" +
     "	</div>\n" +
-    "	<div style=\"float:right;\">\n" +
+    "	<div class=\"pull-right\">\n" +
     "		<img class=\"display\" ng-src=\"{{display}}\" ng-click=\"selectDisplay()\"/>\n" +
     "		<div>\n" +
     "			<button ng-click=\"create()\">Create Room</button>\n" +
@@ -271,19 +304,30 @@ angular.module("menu_left/template/home_teacher.tpl.html", []).run(["$templateCa
 
 angular.module("menu_left/template/quiz_student.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/quiz_student.tpl.html",
-    "<div>\n" +
-    "    <div ng-hide=\"isEnd\">\n" +
-    "        <div>{{question}}</div>\n" +
-    "        <div ng-repeat=\"ans in answer\">\n" +
-    "            <input type=\"radio\" name=\"answer\" ng-click=\"select($index)\" ng-checked=\"$index==0\"/>\n" +
-    "            {{ans}}\n" +
-    "        </div>\n" +
-    "        <button ng-click=\"next()\">Next</button>\n" +
-    "    </div>    \n" +
+    "<div class=\"widget-box\">\n" +
+    "	<div class=\"widget-header header-color-dark\">\n" +
+    "		<h5 class=\"bigger-180 lighter\">{{index}}. {{question}}</h5>\n" +
+    "	</div>\n" +
     "\n" +
-    "    <div ng-show=\"isEnd\">\n" +
-    "        Finish!!!!\n" +
-    "    </div>\n" +
+    "	<div class=\"widget-body\" ng-hide=\"isEnd\">\n" +
+    "		<!-- <div class=\"widget-main padding-10 answer\"> -->\n" +
+    "		<div class=\"control-group\">\n" +
+    "			<div class=\"radio\" ng-repeat=\"ans in answer\">\n" +
+    "				<label>\n" +
+    "					<input class=\"ace\" type=\"radio\" name=\"form-field-radio\" ng-click=\"select($index)\" ng-checked=\"$index==0\"/>\n" +
+    "					<span class=\"lbl\">{{ans}}</span>\n" +
+    "				</label>\n" +
+    "			</div>\n" +
+    "		</div>\n" +
+    "		<!-- </div> -->\n" +
+    "		<div class=\"widget-toolbox clearfix\">\n" +
+    "			<button class=\"btn pull-right\" ng-click=\"next()\">Next</button>\n" +
+    "		</div>\n" +
+    "	</div>    \n" +
+    "\n" +
+    "	<div class=\"widget-body\" ng-show=\"isEnd\">\n" +
+    "		Finish!!!!\n" +
+    "	</div>\n" +
     "</div>");
 }]);
 
@@ -330,15 +374,21 @@ angular.module("menu_left/template/slide_pad.tpl.html", []).run(["$templateCache
 
 angular.module("menu_left/template/tool_bar.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/tool_bar.tpl.html",
-    "<div ng-hide=\"isHide\">\n" +
-    "	<div class=\"tool\">\n" +
-    "		<button ng-repeat=\"tool in toolLeft\" ng-click=\"changeToolLeft($index)\">{{tool}}</button>\n" +
-    "	</div>\n" +
+    "<div class=\"widget-box\" ng-hide=\"isHide\">	\n" +
+    "	<div class=\"widget-body\">\n" +
+    "		<!-- <div class=\"widget-main\"> -->\n" +
     "\n" +
-    "	<selector class=\"attr\"></selector>		\n" +
+    "			<div class=\"width-35 pull-left\">\n" +
+    "				<button ng-repeat=\"tool in toolLeft\" ng-click=\"changeToolLeft($index)\">{{tool}}</button>\n" +
+    "			</div>\n" +
     "\n" +
-    "	<div class=\"tool\">\n" +
-    "		<button ng-repeat=\"tool in toolRight\" ng-click=\"changeToolRight($index)\">{{tool}}</button>\n" +
+    "			<selector class=\"width-30 pull-left attr\"></selector>		\n" +
+    "\n" +
+    "			<div class=\"width-35 pull-left\">\n" +
+    "				<button ng-repeat=\"tool in toolRight\" ng-click=\"changeToolRight($index)\">{{tool}}</button>\n" +
+    "			</div>\n" +
+    "\n" +
+    "		<!-- </div> -->\n" +
     "	</div>\n" +
     "</div>");
 }]);

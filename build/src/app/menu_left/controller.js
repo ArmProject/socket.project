@@ -16,6 +16,7 @@ app.controller('QuizStudentCtrl', function($scope, QuizManager, DataManager) {
 			DataManager.setData(type, obj);
 		}
 		if (index < n) {
+			$scope.index = index + 1;
 			$scope.question = quiz[index].question;
 			$scope.answer = quiz[index].answer;
 			index++;
@@ -72,7 +73,68 @@ app.controller('QuizTeacherCtrl', function($scope, QuizManager, DataManager) {
 	$scope.changeIndex(0);
 	// });
 });
+app.controller('DriveCtrl', function($scope, cfpLoadingBar, Room, DrawManager, Canvas, SlideManager, PDFService, GoogleService) {
+	function loadCanvas(name) {
+		var id = "data";
+		var cs = Canvas.newCanvas(id, Canvas.width, Canvas.height);
+		DrawManager.getObject(cs, name);
+		return cs;
+	}
 
+	var name = Room.room;
+
+	$scope.saveDraw = function() {
+		cfpLoadingBar.start();
+
+		var type = "image/png";
+		name = name + "-Draw";
+
+		var cs = loadCanvas(Canvas.types.DRAW);
+		var data = cs.toDataURL({
+			format: type.split("/")
+		});
+
+		var obj = {};
+		obj.type = type;
+		obj.data = data.split(",")[1];
+		obj.fileName = name;
+		GoogleService.insertFile(obj).then(function(data) {
+			cfpLoadingBar.complete();
+		});
+
+	};
+	$scope.saveSlide = function() {
+		cfpLoadingBar.start();
+		name = name + "-Slide";
+		// Canvas.getCanvas().then(function() {
+
+		var id = SlideManager.slide;
+		if (id) {
+			PDFService.getPdf(id).then(function(pdf) {
+
+				var n = pdf.pdfInfo.numPages;
+				var mirrors = [];
+				for (var i = 1; i <= n; i++) {
+					var cs = loadCanvas(Canvas.types.MIRROR + "-" + i);
+					mirrors.push(cs);
+				}
+
+				PDFService.init(mirrors);
+				PDFService.render(pdf, n).then(function(data) {
+					var obj = {};
+					obj.type = "application/pdf";
+					obj.data = data.split(",")[1];
+					obj.fileName = name;
+					GoogleService.insertFile(obj).then(function(data) {
+						cfpLoadingBar.complete();
+					});
+				});
+
+			});
+		}
+		// });
+	};
+});
 app.controller('HandWriteCtrl', function($scope, $rootScope, DrawFactory, Canvas) {
 	$scope.isSend = true;
 	$scope.hideTool = false;
@@ -151,7 +213,8 @@ app.controller('HomeTeacherCtrl', function($scope, $modal, Room, Socket, LoginMa
 					room: {
 						name: $scope.room,
 						owner: $scope.user.username,
-						display: $scope.display
+						display: $scope.display,
+						description: $scope.description
 					},
 					user: $scope.user
 				});
@@ -195,7 +258,7 @@ app.controller('HomeTeacherCtrl', function($scope, $modal, Room, Socket, LoginMa
 	});
 });
 
-app.controller('HomeStudentCtrl', function($scope, $rootScope, Room, Socket, LoginManager) {
+app.controller('HomeStudentCtrl', function($scope, $rootScope, $modal, Room, Socket, LoginManager) {
 	LoginManager.getUser().then(function(user) {
 
 		// $scope.user = String.fromCharCode(Math.random() * 26 + 97);
@@ -210,13 +273,12 @@ app.controller('HomeStudentCtrl', function($scope, $rootScope, Room, Socket, Log
 		$rootScope.$watch('roomSelected', function() {
 			$scope.selected = $rootScope.roomSelected;
 		});
-		$scope.select = function(index) {
-			$rootScope.roomSelected = index;
-			$scope.room = $scope.rooms[index];
-		};
+		// $scope.select = function(index) {
+		// 	$rootScope.roomSelected = index;
+		// 	$scope.room = $scope.rooms[index];
+		// };
 		$scope.list = function() {
 			Socket.emit("list:room", {}, function(rooms) {
-				console.log(rooms)
 				$scope.rooms = rooms;
 			});
 		};
@@ -224,7 +286,6 @@ app.controller('HomeStudentCtrl', function($scope, $rootScope, Room, Socket, Log
 			if ($scope.room.name != "") {
 				Room.room = $scope.room.name;
 				Room.user = $scope.user.username;
-				console.log($scope.room)
 				Socket.emit("connect:room", {
 					room: $scope.room,
 					user: $scope.user
@@ -238,6 +299,33 @@ app.controller('HomeStudentCtrl', function($scope, $rootScope, Room, Socket, Log
 		$scope.disconnect = function() {
 			Socket.emit("disconnect:room");
 			Socket.disconnect();
+		};
+		$scope.showDetail = function(index) {
+			var modal = $modal.open({
+				templateUrl: 'menu_left/template/detail.tpl.html',
+				resolve: {
+					room: function() {
+						return $scope.rooms[index];
+					},
+					index: function() {
+						return index;
+					}
+				},
+				controller: function($scope, $modalInstance, room, index) {
+					$scope.room = room;
+					$scope.ok = function() {
+						$modalInstance.close(index);
+					};
+					$scope.cancel = function() {
+						$modalInstance.dismiss('cancel');
+					};
+				}
+			});
+			modal.result.then(function(index) {
+				$rootScope.roomSelected = index;
+				$scope.room = $scope.rooms[index];
+				$scope.connect();
+			});
 		};
 		$scope.list();
 

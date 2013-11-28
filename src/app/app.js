@@ -4,7 +4,7 @@ var app = angular.module('socket', ['templates-app', 'templates-common',
 ]);
 
 app.constant('host_node', 'http://localhost:8080');
-app.constant('host_drupal', 'http://10.16.86.131');
+app.constant('host_drupal', 'http://science.kmutt.ac.th/drupal');
 
 app.config(function(cfpLoadingBarProvider) {
 	cfpLoadingBarProvider.includeSpinner = false;
@@ -22,7 +22,8 @@ app.config(function($stateProvider, $urlRouterProvider) {
 		controller: 'HandWriteCtrl'
 	}).state('main.drive', {
 		url: '/drive',
-		templateUrl: 'menu_left/template/drive.tpl.html'
+		templateUrl: 'menu_left/template/drive.tpl.html',
+		controller: 'DriveCtrl'
 	}).state('main.home', {
 		url: '/home',
 		controller: 'AccessCtrl'

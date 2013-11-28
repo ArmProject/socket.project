@@ -81,6 +81,7 @@ module.exports = {
       'vendor/ace/assets/js/ace.min.js',
       'vendor/ace/assets/js/ace-elements.min.js',
       'vendor/ace/assets/js/ace-extra.min.js',
+      // 'vendor/ace/assets/js/jquery.slimscroll.min.js',
       'vendor/ace/assets/css/ace.min.css',
       'vendor/ace/assets/css/ace-rtl.min.css',
       'vendor/ace/assets/css/ace-skins.min.css',
