@@ -1,12 +1,22 @@
 <div class="widget-box">
-	<div class="widget-header">
+	<div class="widget-header header-color-grey">
 		<div class="inline" ng-init="tab = 'slide'">
-			<button class="btn btn-app btn-xs no-radius" ng-click="tab = 'slide'">Slide</a></li>
-			<button class="btn btn-app btn-xs no-radius" ng-click="tab = 'quiz'">Quiz</a></li>
+			<button class="btn btn-app btn-xs no-radius btn-light" ng-click="tab = 'slide'">
+				Slide
+			</button>
+			<button class="btn btn-app btn-xs no-radius btn-light" ng-click="tab = 'quiz'" ng-show="hasQuiz">
+				Quiz
+			</button>
 		</div>
 		<div class="widget-toolbar">
-			<button class="btn btn-xs bigger" ng-click="saveSlide()">Save Slide</button>
-			<button class="btn btn-xs bigger" ng-click="saveDraw()">Save Draw</button>
+			<button class="btn btn-xs bigger" ng-click="saveSlide()">
+				<i class="icon-save bigger-180"></i>
+				<span class="bigger-140"> Slide</span>
+			</button>
+			<button class="btn btn-xs bigger" ng-click="saveDraw()">
+				<i class="icon-save bigger-180"></i>
+				<span class="bigger-140"> Draw</span>
+			</button>
 		</div>
 	</div>
 

@@ -121,8 +121,28 @@ module.exports = function ( grunt ) {
       build_vendorjs: {
         files: [
           {
-            src: [ '<%= vendor_files.js %>' ],
+            src: [ '<%= vendor_files.js %>', '<%= vendor_files.nojs %>' ],
             dest: '<%= build_dir %>/',
+            cwd: '.',
+            expand: true
+          }
+        ]
+      },
+      build_vendorcss: {
+        files: [
+          {
+            src: [ '<%= vendor_files.css %>', '<%= vendor_files.nocss %>' ],
+            dest: '<%= build_dir %>/',
+            cwd: '.',
+            expand: true
+          }
+        ]
+      },
+      compile_vendor: {
+        files: [
+          {
+            src: [ '<%= vendor_files.nojs %>', '<%= vendor_files.nocss %>' ],
+            dest: '<%= compile_dir %>',
             cwd: '.',
             expand: true
           }
@@ -153,7 +173,7 @@ module.exports = function ( grunt ) {
           banner: '<%= meta.banner %>'
         },
         src: [ 
-          '<%= vendor_files.js %>', 
+          '<%= vendor_files.js %>',
           'module.prefix', 
           '<%= build_dir %>/src/**/*.js', 
           '<%= html2js.app.dest %>', 
@@ -223,7 +243,7 @@ module.exports = function ( grunt ) {
      */
     recess: {
       build: {
-        src: [ '<%= app_files.less %>' ],
+        src: [ '<%= app_files.less %>','<%= vendor_files.css %>' ],
         dest: '<%= build_dir %>/assets/<%= pkg.name %>.css',
         options: {
           compile: true,
@@ -234,7 +254,7 @@ module.exports = function ( grunt ) {
         }
       },
       compile: {
-        src: [ '<%= recess.build.dest %>' ],
+        src: [ '<%= recess.build.dest %>','<%= vendor_files.css %>' ],
         dest: '<%= recess.build.dest %>',
         options: {
           compile: true,
@@ -328,16 +348,16 @@ module.exports = function ( grunt ) {
      * The Karma configurations.
      */
     karma: {
-      options: {
-        configFile: 'karma/karma-unit.tpl.js'
-      },
-      unit: {
-        runnerPort: 9101,
-        background: true
-      },
-      continuous: {
-        singleRun: true
-      }
+      // options: {
+      //   configFile: 'karma/karma-unit.tpl.js'
+      // },
+      // unit: {
+      //   runnerPort: 9101,
+      //   background: true
+      // },
+      // continuous: {
+      //   singleRun: true
+      // }
     },
 
     /**
@@ -356,11 +376,13 @@ module.exports = function ( grunt ) {
         dir: '<%= build_dir %>',
         src: [
           '<%= vendor_files.js %>',
+          '<%= vendor_files.nojs %>',
           '<%= build_dir %>/src/**/*.js',
           '<%= html2js.common.dest %>',
           '<%= html2js.app.dest %>',
-          '<%= vendor_files.css %>',
-          '<%= recess.build.dest %>'
+          '<%= recess.build.dest %>',
+          // '<%= vendor_files.css %>',
+          '<%= vendor_files.nocss %>'
         ]
       },
 
@@ -373,8 +395,9 @@ module.exports = function ( grunt ) {
         dir: '<%= compile_dir %>',
         src: [
           '<%= concat.compile_js.dest %>',
-          '<%= vendor_files.css %>',
-          '<%= recess.compile.dest %>'
+          '<%= recess.compile.dest %>',
+          '<%= vendor_files.nojs %>',
+          '<%= vendor_files.nocss %>'
         ]
       }
     },
@@ -540,7 +563,7 @@ module.exports = function ( grunt ) {
    */
   grunt.registerTask( 'build', [
     'clean', 'html2js', 'jshint', 'coffeelint', 'coffee','recess:build',
-    'copy:build_assets', 'copy:build_appjs', 'copy:build_vendorjs',
+    'copy:build_assets', 'copy:build_appjs', 'copy:build_vendorjs', 'copy:build_vendorcss',
     'index:build', 'karmaconfig', 'karma:continuous' 
   ]);
 
@@ -549,7 +572,7 @@ module.exports = function ( grunt ) {
    * minifying your code.
    */
   grunt.registerTask( 'compile', [
-    'recess:compile', 'copy:compile_assets', 'ngmin', 'concat', 'uglify', 'index:compile'
+    'recess:compile', 'copy:compile_assets', 'ngmin', 'concat', 'uglify', 'index:compile', 'copy:compile_vendor'
   ]);
 
   /**
