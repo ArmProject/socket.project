@@ -2,10 +2,12 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 	function(Canvas, $rootScope) {
 		var self = this;
 
+		var scaleFont = 20;
 		this.strokeColor = 'black';
 		this.fillColor = 'black';
 		this.strokeSize = 5;
-		this.fontSize = 30;
+		this.fontSize = 5;
+
 		var drawOption = {
 			color: self.strokeColor,
 			width: self.strokeSize
@@ -44,6 +46,12 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 		this.getName = function() {
 			return id;
 		};
+		this.getScale = function() {
+			return {
+				x: Canvas.width,
+				y: Canvas.height
+			};
+		}
 		this.init = function(name) {
 			Canvas.init(name);
 			Canvas.getCanvas().then(function(cs) {
@@ -104,39 +112,47 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 		this.enableMove = function(obj) {
 			canvas.selection = true;
 			obj.set('selectable', true);
-			obj.set('hasBorders', true);
-			obj.set('hasControls', true);
 			obj.set('hasRotatingPoint', true);
+			obj.set('hasBorders', true);
+			if (!(obj instanceof fabric.Group)) {
+				obj.set('hasControls', true);
+			}
 		};
 		this.remove = function(indexs) {
 			angular.forEach(indexs, function(index, key) {
-				canvas.forEachObject(function(obj) {
-					if (!(obj instanceof fabric.Group)) {
-						if (obj.get("id") == index) {
-							current.remove(obj);
-							return;
-						}
+				current.forEachObject(function(obj) {
+					// if (!(obj instanceof fabric.Group)) {
+					if (obj.get("id") == index) {
+						current.remove(obj);
+						return;
 					}
+					// }
 				});
 			});
 			canvas.renderAll();
 		};
-		this.draw = function(data, x, y) {
+		this.draw = function(data, x, y, scale) {
 			var paths = [];
 			angular.forEach(data.path, function(value, key) {
 				paths.push(value.join(" "));
 			});
 			paths = paths.join(" ");
 			var path = new fabric.Path(paths);
+			var scaleX = self.getScale().x / scale.x;
+			var scaleY = self.getScale().y / scale.y;
+			var scale = Math.min(scaleX, scaleY);
 			path.set({
 				left: x,
 				top: y,
+				originX: 'center',
+				originY: 'center',
 				fill: null,
 				stroke: data.stroke,
 				strokeWidth: data.strokeWidth,
 				strokeLineCap: data.strokeLineCap,
 				strokeLineJoin: data.strokeLineJoin
 			});
+			path.scale(scale);
 			self.disableMove(path);
 
 			if (current instanceof fabric.Group) {
@@ -167,6 +183,10 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 				if (xPos && yPos) {
 					current.remove(line);
 					line = new fabric.Line([xPos, yPos, x, y], lineOption);
+					line.set({
+						originX: 'center',
+						originY: 'center'
+					});
 					if (current instanceof fabric.Group) {
 						current.addWithUpdate(line);
 					} else {
@@ -174,7 +194,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 					}
 					setId(line);
 					self.disableMove(line);
-					canvas.calcOffset();
+					// canvas.calcOffset();
 					canvas.renderAll();
 				}
 				if (isUp) {
@@ -192,7 +212,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 				"top": y
 			});
 			if (current instanceof fabric.Group) {
-				current.addWithUpdate(text);
+				current.add(text);
 			} else {
 				current.add(text);
 			}
@@ -226,8 +246,8 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 		};
 		this.setFontSize = function(size) {
 			if (size) {
+				textOption.fontSize = scaleFont + size;
 				self.fontSize = size;
-				textOption.fontSize = size;
 			}
 		};
 		this.getStrokeColor = function() {
@@ -254,11 +274,26 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			if (id) {
 				if (!(id in groups)) {
 					groups[id] = new fabric.Group();
+					groups[id].set({
+						"id": id,
+						"originX": 'center',
+						"originY": 'center'
+					});
 					self.disableMove(groups[id]);
 					canvas.add(groups[id]);
 				}
 			}
 		};
+		this.getFromId = function(id) {
+			var n;
+			canvas.forEachObject(function(obj) {
+				if (obj.get("id") == id) {
+					n = canvas.getObjects().indexOf(obj);
+					return;
+				}
+			});
+			return n;
+		}
 		this.getIndex = function(obj) {
 			var index = [];
 
@@ -328,7 +363,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			// 			"left": dx,
 			// 			"top": dy
 			// 		});
-			// 		// current.addWithUpdate(obj);
+			// 		// current.add(obj);
 			// 		// canvas.calcOffset();
 			// 		// canvas.renderAll();
 			// 	})
@@ -369,7 +404,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 
 			});
 		};
-		this.clear = function() {
+		this.clear = function(id) {
 			// canvas.clear();
 			// Canvas.removeId(id)		
 			// self.init(id);
@@ -382,6 +417,8 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			canvas.renderAll();
 			n = 0;
 		};
-		
+		this.removeGroup = function(id) {
+			delete groups[id];
+		}
 	}
 ]);

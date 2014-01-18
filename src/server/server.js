@@ -16,7 +16,7 @@ var Logger = function() {
 			data[name] = {
 				room: rm,
 				users: {},
-				msgs: [],
+				msg: [],
 				pos: []
 			};
 		}
@@ -40,7 +40,7 @@ var Logger = function() {
 	}
 	this.logMsg = function(msg) {
 		if (data[room]) {
-			data[room].msgs.push(msg);
+			data[room].msg.push(msg);
 		}
 	}
 
@@ -53,6 +53,19 @@ var Logger = function() {
 	this.logSlide = function(slide) {
 		if (data[room]) {
 			data[room].slide = slide;
+		}
+	}
+
+	this.logQuiz = function(quiz) {
+		if (data[room]) {
+			if (quiz.node) {
+				data[room].quiz = {
+					node: quiz.node,
+					data: []
+				}
+			} else {
+				data[room].quiz.data.push(quiz);
+			}
 		}
 	}
 
@@ -94,21 +107,10 @@ io.sockets.on('connection', function(socket) {
 
 	function logOutUser(room) {
 		var users = logger.logData[room].users;
-
-		function getUserName(id) {
-			for (name in users) {
-				if (users[name].id == id) {
-					return name;
-				}
-			}
-			return "";
-		}
 		var clients = io.sockets.clients(room)
 		if (clients) {
 			for (var i = 0; i < clients.length; i++) {
-				var name = getUserName(clients[i].id);
-				socket.set('userName', name);
-				clients[i].disconnect();
+				clients[i].leave(room);
 			}
 			logger.save(room);
 		}
@@ -132,6 +134,10 @@ io.sockets.on('connection', function(socket) {
 		var name = data.room.name;
 		var room = name == "" ? "" : "/" + name;
 		if (room in io.sockets.manager.rooms) {
+			if(data.exit){
+				socket.leave(data.exit);
+			}
+
 			socket.set('roomName', name);
 
 			if (name == "" || name == "/") {
@@ -183,8 +189,7 @@ io.sockets.on('connection', function(socket) {
 					if (data) {
 						var owner = data.room.owner
 						if (user == owner) {
-							// logOutUser(room);
-							// logger.save(room);
+							logOutUser(room);
 						}
 
 						// console.log("User : " + user + " disconnect");
@@ -202,11 +207,13 @@ io.sockets.on('connection', function(socket) {
 				var data = logger.logData[room];
 				if (data) {
 					var pos = data.pos;
+					var list = [];
 					for (var i = 0; i < pos.length; i++) {
 						if (pos[i].user.id != getId()) {
-							socket.emit('send:pos', pos[i]);
+							list.push(pos[i]);
 						}
-					};
+					}
+					socket.emit('send:pos', list);
 				}
 
 				// console.log(getId() + " Init pos");
@@ -246,12 +253,23 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
+	socket.on('init:msg', function() {
+		socket.get('roomName', function(err, room) {
+			if (room != null) {
+				var data = logger.logData[room];
+				if (data) {
+					var msg = data.msg;
+					socket.emit('send:msg', msg);
+				}
+				// console.log(getId() + " Init slide");
+			}
+		});
+	});
 	socket.on('send:msg', function(data) {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
-				io.sockets. in (room).emit('send:msg', data.msg);
+				socket.broadcast.to(room).emit('send:msg', data.msg);
 				logger.logMsg(data.msg);
-
 				// console.log("Send msg : " + data.msg);
 			}
 		});
@@ -280,11 +298,25 @@ io.sockets.on('connection', function(socket) {
 		});
 	});
 
+	socket.on('init:quiz', function() {
+		socket.get('roomName', function(err, room) {
+			if (room != null) {
+				var data = logger.logData[room];
+				if (data) {
+					var quiz = data.quiz;
+					socket.emit('send:quiz', quiz);
+				}
+				// console.log(getId() + " Init slide");
+			}
+		});
+	});
 	socket.on('send:quiz', function(data) {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
 				socket.broadcast.to(room).emit('send:quiz', data);
-				console.log("Send quiz");
+				// console.log("Send quiz");
+
+				logger.logQuiz(data);
 			}
 		});
 	});

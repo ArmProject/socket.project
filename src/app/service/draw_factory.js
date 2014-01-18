@@ -2,63 +2,45 @@ app.service("DrawFactory", ["Canvas", "DrawManager",
 	function(Canvas, DrawManager) {
 		var self = this;
 		this.tools = {
-			MODE: "Mode",
-			DRAG_GROUP: "Group Drag",
-			DRAG_OBJECT: "Drag",
-			CLEAR: "Clear",
-			TEXT: "Text",
-			DRAW: "Draw",
-			LINE: "Line",
-			// ANIMATE: "Animate",
-			DELETE: "Delete"
+			MODE: "catch",
+			DRAG_GROUP: "drag_group",
+			DRAG_OBJECT: "drag",
+			CLEAR: "clear",
+			TEXT: "text",
+			DRAW: "write",
+			LINE: "line",
+			DELETE: "delete"
 		};
 		this.attrs = {
 			COLOR: "Color",
 			SIZE: "Size"
 		};
 		var listener = {};
-		// var canvas = Canvas.getCanvas();
-		// Canvas.getCanvas().then(function(cs) {
-		// 	canvas = cs;
-		// });
-
-		this.setAnimate = function(data, draw) {
-			var delay = 10;
-			var isDraw = false;
-			listener.animate = {
-				call: function() {
-					if (!isDraw) {
-						isDraw = true;
-						var i = 0;
-						(function animate() {
-							if (i < data.length) {
-								var pos = data[i];
-								draw(pos);
-								$timeout(animate, delay);
-								i++;
-							} else {
-								isDraw = false;
-							}
-						})();
-
-					}
-				}
-			};
-		};
 		this.setDelete = function(remove) {
 			listener.remove = {
-				// call: function() {
-				// 	remove();
-				// }
 				onSelect: function(e) {
 					remove(e.target);
 				}
 			};
 		};
+		this.setClear = function(clear) {
+			listener.clear = {
+				call: function() {
+					clear();
+				}
+			};
+		};
 		this.setText = function(text) {
+			var isText = false;
 			listener.text = {
 				onDown: function(pos) {
-					text(pos);
+					if (isText) {
+						text();
+						isText = false;
+					} else {
+						text(pos);
+						isText = true;
+					}
 				}
 			};
 		};
@@ -235,6 +217,7 @@ app.service("DrawFactory", ["Canvas", "DrawManager",
 					break;
 				case self.tools.CLEAR:
 					DrawManager.clear();
+					setBind(listener.clear);
 					break;
 				case self.tools.DELETE:
 					DrawManager.canGroupDrag(false);

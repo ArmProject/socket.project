@@ -4,7 +4,6 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 
 		var SCALE = 0.8;
 		var TYPE = "jpeg";
-		var DELAY = 500;
 
 		var doc = new jsPDF();
 		var scale;
@@ -53,13 +52,11 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 		}
 		this.render = function(pdf, n) {
 			var deferred = $q.defer();
-			// var stop = $timeout(function() {
 			var render = function() {
 				pdf.getPage(i).then(function(page) {
 					var drawCanvas = mirrors[i - 1];
 					if (!scale) {
 						scale = setScale(page);
-						// console.log(DELAY);
 					}
 					var view = page.getViewport(scale);
 
@@ -74,7 +71,6 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 					page.render(renderContext).then(function() {
 						var stroke = 2;
 						fabric.Image.fromURL(slideCanvas.toDataURL(), function(img) {
-							console.log(drawCanvas);
 							drawCanvas.add(img);
 							img.set({
 								stroke: 'black',
@@ -86,10 +82,10 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 							drawCanvas.renderAll();
 							var data = drawCanvas.toDataURL({
 								format: TYPE,
-								top: img.getTop() - img.getHeight() / 2,
-								left: img.getLeft() - img.getWidth() / 2,
-								width: w,
-								height: h
+								top: img.getTop(),
+								left: img.getLeft(),
+								width: img.getWidth() + stroke,
+								height: img.getHeight() + stroke
 							});
 							console.log(data);
 
@@ -98,7 +94,6 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 							drawCanvas.remove(img);
 							if (i == n) {
 								deferred.resolve(self.save());
-								// $timeout.cancel(stop);
 								return;
 								// return self.save();
 							} else {
@@ -111,7 +106,6 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 				});
 			};
 			render();
-			// }, DELAY);
 			return deferred.promise;
 		};
 		this.addImage = function(data, i, w, h) {

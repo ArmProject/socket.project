@@ -1,84 +1,100 @@
-app.controller('QuizStudentCtrl', ["$scope", "QuizManager", "DataManager",
-	function($scope, QuizManager, DataManager) {
-		// QuizManager.load().then(function(quiz) {
-		var quiz = QuizManager.quiz;
+app.controller('QuizStudentCtrl', ["$scope", "$rootScope", "QuizManager", "DataManager",
+	function($scope, $rootScope, QuizManager, DataManager) {
 		var type = DataManager.types.QUIZ;
-		var index = 0,
-			select = 0,
-			n = quiz.length;
-		$scope.isEnd = false;
-		$scope.selected = false;
-		$scope.next = function() {
-			if (index !== 0) {
-				var obj = {};
-				obj.question = index - 1;
-				obj.answer = select;
-				console.log(select);
-				DataManager.setData(type, obj);
+		if (angular.isUndefined($rootScope.isEnd)) {
+			$rootScope.isEnd = false;
+		}
+		DataManager.getData(type, function(data) {
+			// $scope.chartConfig.title.text = $scope.quiz[data.question].question;
+			if (data && (data.node != QuizManager.node || !$rootScope.isEnd)) {
+				if (data.node != QuizManager.node) {
+					$rootScope.index = 0;
+					$rootScope.isEnd = false;
+				}
+				QuizManager.node = data.node;
+				QuizManager.load().then(function(quiz) {
+					// var quiz = QuizManager.quiz;
+					var index = $rootScope.index,
+						select = 0,
+						n = quiz.length;
+					$scope.selected = false;
+					$scope.next = function() {
+						if (index !== 0) {
+							var obj = {};
+							obj.question = index - 1;
+							obj.answer = select;
+							// console.log(select);
+							DataManager.setData(type, obj);
+							$rootScope.index++;
+						}
+						if (index < n) {
+							$scope.index = index + 1;
+							$scope.question = quiz[index].question;
+							$scope.answer = quiz[index].answer;
+							index++;
+						} else {
+							$rootScope.isEnd = true;
+						}
+					};
+					$scope.select = function(index) {
+						select = index;
+					};
+					$scope.next($rootScope.index);
+				});
 			}
-			if (index < n) {
-				$scope.index = index + 1;
-				$scope.question = quiz[index].question;
-				$scope.answer = quiz[index].answer;
-				index++;
-			} else {
-				$scope.isEnd = true;
-			}
-		};
-		$scope.select = function(index) {
-			select = index;
-		};
-		$scope.next(index);
-		// });
+		});
+
+		DataManager.initData(type);
 	}
 ]);
 app.controller('QuizTeacherCtrl', ["$scope", "QuizManager", "DataManager",
 	function($scope, QuizManager, DataManager) {
-		$scope.chartConfig = QuizManager.chartConfig;
-		console.log($scope.chartConfig)
-
-
-		// QuizManager.load().then(function(data) {
-		var data = QuizManager.quiz;
 		var type = DataManager.types.QUIZ;
-		var current = 0;
-		$scope.quiz = [];
-		angular.forEach(data, function(quiz, key) {
-			var obj = {};
-			obj.question = quiz.question;
-			obj.answer = {
-				name: [],
-				data: []
-			};
-			angular.forEach(quiz.answer, function(answer, key) {
-				obj.answer.name.push(answer);
-				obj.answer.data.push(0);
+		if (angular.isDefined(QuizManager.node)) {
+			DataManager.setData(type, {
+				node: QuizManager.node
 			});
-			$scope.quiz.push(obj);
-		});
-		console.log($scope.quiz)
+			QuizManager.load().then(function(data) {
+				// var data = QuizManager.quiz;
+				$scope.current = 0;
+				$scope.quiz = [];
+				angular.forEach(data, function(quiz, key) {
+					var obj = {};
+					obj.question = quiz.question;
+					obj.answer = {
+						name: [],
+						data: []
+					};
+					angular.forEach(quiz.answer, function(answer, key) {
+						obj.answer.name.push(answer);
+						obj.answer.data.push(0);
+					});
+					QuizManager.setMaxChoice(obj.answer.data.length);
+					$scope.quiz.push(obj);
+				});
+				$scope.chartConfig = QuizManager.chartConfig;
+				DataManager.getData(type, function(data) {
+					// $scope.chartConfig.title.text = $scope.quiz[data.question].question;
+					var series = $scope.quiz[data.question].answer.data;
+					series[data.answer]++;
+					if (data.question == $scope.current) {
+						$scope.chartConfig.series[0].data = series;
+					}
+				});
 
-		DataManager.getData(type, function(data) {
-			// $scope.chartConfig.title.text = $scope.quiz[data.question].question;
-			var series = $scope.quiz[data.question].answer.data;
-			series[data.answer]++;
-			if (data.question == current) {
-				$scope.chartConfig.series[0].data = series;
-			}
-		});
-
-		$scope.changeIndex = function(index) {
-			current = index;
-			var quiz = $scope.quiz[index];
-			$scope.chartConfig.title.text = quiz.question;
-			$scope.chartConfig.series[0].data = quiz.answer.data;
-		};
-		$scope.changeIndex(0);
-		// });
+				$scope.changeIndex = function(index) {
+					$scope.current = index;
+					var quiz = $scope.quiz[index];
+					$scope.chartConfig.title.text = quiz.question;
+					$scope.chartConfig.series[0].data = quiz.answer.data;
+				};
+				$scope.changeIndex(0);
+			});
+		}
 	}
 ]);
-app.controller('DriveCtrl', ["$scope", "cfpLoadingBar", "Room", "LoginManager", "DrawManager", "Canvas", "SlideManager", "PDFService", "GoogleService",
-	function($scope, cfpLoadingBar, Room, LoginManager, DrawManager, Canvas, SlideManager, PDFService, GoogleService) {
+app.controller('DriveCtrl', ["$scope", "$modal", "cfpLoadingBar", "Room", "LoginManager", "DrawManager", "Canvas", "SlideManager", "PDFService", "GoogleService",
+	function($scope, $modal, cfpLoadingBar, Room, LoginManager, DrawManager, Canvas, SlideManager, PDFService, GoogleService) {
 		LoginManager.getUser().then(function(user) {
 			$scope.hasQuiz = LoginManager.getAccess() == LoginManager.level.TEACHER;
 
@@ -89,58 +105,68 @@ app.controller('DriveCtrl', ["$scope", "cfpLoadingBar", "Room", "LoginManager", 
 				return cs;
 			}
 
-			var name = Room.room;
-
-			$scope.saveDraw = function() {
-				cfpLoadingBar.start();
-
-				var type = "image/png";
-				name = name + "-Draw";
-
-				var cs = loadCanvas(Canvas.types.DRAW);
-				var data = cs.toDataURL({
-					format: type.split("/")
+			$scope.showDialog = function() {
+				var modal = $modal.open({
+					templateUrl: 'modal/template/save.tpl.html',
+					controller: 'SaveCtrl'
 				});
+				return modal.result;
+			};
+			$scope.saveDraw = function() {
+				$scope.showDialog().then(function(name) {
+					cfpLoadingBar.start();
 
-				var obj = {};
-				obj.type = type;
-				obj.data = data.split(",")[1];
-				obj.fileName = name;
-				GoogleService.insertFile(obj).then(function(data) {
-					cfpLoadingBar.complete();
+					var type = "image/png";
+					// name = name + "-Draw";
+
+					var cs = loadCanvas(Canvas.types.DRAW);
+					cs.setBackgroundColor('white');
+
+					var data = cs.toDataURL({
+						format: type.split("/")
+					});
+					
+					var obj = {};
+					obj.type = type;
+					obj.data = data.split(",")[1];
+					obj.fileName = name;
+					GoogleService.insertFile(obj).then(function(data) {
+						cfpLoadingBar.complete();
+					});
 				});
 
 			};
 			$scope.saveSlide = function() {
-				cfpLoadingBar.start();
-				name = name + "-Slide";
-				// Canvas.getCanvas().then(function() {
+				Canvas.getCanvas().then(function() {
+					$scope.showDialog().then(function(name) {
+						cfpLoadingBar.start();
+						// name = name + "-Slide";
+						var id = SlideManager.slide;
+						if (id) {
+							PDFService.getPdf(id).then(function(pdf) {
 
-				var id = SlideManager.slide;
-				if (id) {
-					PDFService.getPdf(id).then(function(pdf) {
+								var n = pdf.pdfInfo.numPages;
+								var mirrors = [];
+								for (var i = 1; i <= n; i++) {
+									var cs = loadCanvas(Canvas.types.MIRROR + "-" + i);
+									mirrors.push(cs);
+								}
 
-						var n = pdf.pdfInfo.numPages;
-						var mirrors = [];
-						for (var i = 1; i <= n; i++) {
-							var cs = loadCanvas(Canvas.types.MIRROR + "-" + i);
-							mirrors.push(cs);
-						}
+								PDFService.init(mirrors);
+								PDFService.render(pdf, n).then(function(data) {
+									var obj = {};
+									obj.type = "application/pdf";
+									obj.data = data.split(",")[1];
+									obj.fileName = name;
+									GoogleService.insertFile(obj).then(function(data) {
+										cfpLoadingBar.complete();
+									});
+								});
 
-						PDFService.init(mirrors);
-						PDFService.render(pdf, n).then(function(data) {
-							var obj = {};
-							obj.type = "application/pdf";
-							obj.data = data.split(",")[1];
-							obj.fileName = name;
-							GoogleService.insertFile(obj).then(function(data) {
-								cfpLoadingBar.complete();
 							});
-						});
-
+						}
 					});
-				}
-				// });
+				});
 			};
 		});
 	}
@@ -149,22 +175,22 @@ app.controller('HandWriteCtrl', ["$scope", "$rootScope", "DrawFactory", "Canvas"
 	function($scope, $rootScope, DrawFactory, Canvas) {
 		$scope.isSend = true;
 		$scope.hideTool = false;
-		$scope.hideMenu = true;
+		$scope.showMenu = false;
 		$scope.checkToolSwipe = function(hideTool) {
 			if ($scope.tool == DrawFactory.tools.MODE) {
 				$scope.hideTool = hideTool;
 			}
 		};
-		$scope.checkMenuSwipe = function(hideMenu) {
+		$scope.checkMenuSwipe = function(showMenu) {
 			if ($scope.tool == DrawFactory.tools.MODE) {
-				$scope.hideMenu = hideMenu;
+				$scope.showMenu = showMenu;
 			}
 		};
 	}
 ]);
 
-app.controller('SlideCtrl', ["$scope", "$rootScope", "LoginManager", "DrawFactory", "SlideManager",
-	function($scope, $rootScope, LoginManager, DrawFactory, SlideManager) {
+app.controller('SlideCtrl', ["$scope", "$rootScope", "LoginManager", "GoogleService", "DrawFactory", "SlideManager",
+	function($scope, $rootScope, LoginManager, GoogleService, DrawFactory, SlideManager) {
 		LoginManager.getUser().then(function(user) {
 			$scope.isSend = LoginManager.getAccess() == LoginManager.level.TEACHER;
 			$scope.isStart = true;
@@ -183,16 +209,24 @@ app.controller('SlideCtrl', ["$scope", "$rootScope", "LoginManager", "DrawFactor
 					$scope.isEnd = SlideManager.isEnd();
 				}
 			};
+			$scope.slide = SlideManager;
+			$scope.$watch('slide.slide', function(oldV, newV) {
+				var id = SlideManager.slide;
+				if (angular.isDefined(id)) {
+					GoogleService.shareFile(id, user.email).then(function(data) {});
+				}
+			})
+
 			$scope.hideTool = false;
-			$scope.hideMenu = true;
+			$scope.showMenu = false;
 			$scope.checkToolSwipe = function(hideTool) {
 				if ($scope.tool == DrawFactory.tools.MODE) {
 					$scope.hideTool = hideTool;
 				}
 			};
-			$scope.checkMenuSwipe = function(hideMenu) {
+			$scope.checkMenuSwipe = function(showMenu) {
 				if ($scope.tool == DrawFactory.tools.MODE) {
-					$scope.hideMenu = hideMenu;
+					$scope.showMenu = showMenu;
 				}
 			};
 			$rootScope.$on('tool', function(e, tool) {
@@ -226,7 +260,7 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 				}
 			});
 			$scope.create = function() {
-				if ($scope.room.name != "") {
+				if ($scope.room.name != "" && $scope.room.display != "") {
 					Room.room = $scope.room.name;
 					Room.user = $scope.user.username;
 					Socket.emit("create:room", {
@@ -249,24 +283,8 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 			};
 			$scope.selectDisplay = function() {
 				var modal = $modal.open({
-					templateUrl: 'menu_left/template/display.tpl.html',
-					controller: ["$scope", "$modalInstance",
-						function($scope, $modalInstance) {
-							$scope.url = "assets/emoticon/";
-							$scope.items = ["1.gif", "2.gif", "3.gif"];
-							$scope.selected = $scope.items[0];
-							$scope.select = function(index) {
-								$scope.selected = $scope.items[index];
-								console.log($scope.selected);
-							};
-							$scope.ok = function() {
-								$modalInstance.close($scope.url + $scope.selected);
-							};
-							$scope.cancel = function() {
-								$modalInstance.dismiss('cancel');
-							};
-						}
-					]
+					templateUrl: 'modal/template/display.tpl.html',
+					controller: 'DisplayCtrl'
 				});
 				modal.result.then(function(url) {
 					console.log()
@@ -274,9 +292,6 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 				});
 			};
 
-			$scope.room.name = "public";
-			$scope.room.display = "";
-			$scope.create();
 		});
 	}
 ]);
@@ -285,7 +300,6 @@ app.controller('HomeStudentCtrl', ["$scope", "$rootScope", "$modal", "Room", "So
 	function($scope, $rootScope, $modal, Room, Socket, LoginManager) {
 		LoginManager.getUser().then(function(user) {
 
-			// $scope.user = String.fromCharCode(Math.random() * 26 + 97);
 			$scope.user = user;
 
 			Socket.on("leave:room", function(user) {
@@ -294,8 +308,8 @@ app.controller('HomeStudentCtrl', ["$scope", "$rootScope", "$modal", "Room", "So
 					Room.users.splice(index, 1);
 				}
 			});
-			$rootScope.$watch('roomSelected', function() {
-				$scope.selected = $rootScope.roomSelected;
+			$rootScope.$watch('selected', function() {
+				$rootScope.roomSelected = $scope.selected;
 			});
 			// $scope.select = function(index) {
 			// 	$rootScope.roomSelected = index;
@@ -308,14 +322,15 @@ app.controller('HomeStudentCtrl', ["$scope", "$rootScope", "$modal", "Room", "So
 			};
 			$scope.connect = function() {
 				if ($scope.room.name != "") {
-					Room.room = $scope.room.name;
-					Room.user = $scope.user.username;
 					Socket.emit("connect:room", {
+						exit: Room.room,
 						room: $scope.room,
 						user: $scope.user
 					}, function(id) {
 
 					});
+					Room.room = $scope.room.name;
+					Room.user = $scope.user.username;
 				} else {
 					alert("Input Room name");
 				}
@@ -326,7 +341,7 @@ app.controller('HomeStudentCtrl', ["$scope", "$rootScope", "$modal", "Room", "So
 			};
 			$scope.showDetail = function(index) {
 				var modal = $modal.open({
-					templateUrl: 'menu_left/template/detail.tpl.html',
+					templateUrl: 'modal/template/detail.tpl.html',
 					resolve: {
 						room: function() {
 							return $scope.rooms[index];
@@ -335,29 +350,16 @@ app.controller('HomeStudentCtrl', ["$scope", "$rootScope", "$modal", "Room", "So
 							return index;
 						}
 					},
-					controller: ["$scope", "$modalInstance", "room", "index",
-						function($scope, $modalInstance, room, index) {
-							$scope.room = room;
-							$scope.ok = function() {
-								$modalInstance.close(index);
-							};
-							$scope.cancel = function() {
-								$modalInstance.dismiss('cancel');
-							};
-						}
-					]
+					controller: 'DetailCtrl'
 				});
 				modal.result.then(function(index) {
-					$rootScope.roomSelected = index;
+					$scope.selected = index;
 					$scope.room = $scope.rooms[index];
 					$scope.connect();
 				});
 			};
 			$scope.list();
-
-			$scope.room.name = "public";
-			$scope.room.display = "";
-			$scope.connect();
 		});
+
 	}
 ]);

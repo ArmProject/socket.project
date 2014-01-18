@@ -30,7 +30,7 @@ module.exports = {
     ctpl: ['src/common/**/*.tpl.html'],
 
     html: ['src/index.html'],
-    less: 'src/less/main.less',
+    less: 'src/less/*.less',
   },
 
   /**
@@ -77,7 +77,7 @@ module.exports = {
       'vendor/google_plus/index.js',
       'vendor/jspdf/index.js',
       'vendor/angular-loading-bar/build/loading-bar.min.js',
-      'vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.with-mousewheel.min.js',
+      'vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.6.with-mousewheel.min.js',
       'vendor/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js',
       'vendor/highcharts/index.js',
       'vendor/highcharts-ng/src/directives/highcharts-ng.js',
@@ -86,13 +86,13 @@ module.exports = {
       'vendor/ace/assets/js/ace.min.js',
       'vendor/ace/assets/js/ace-elements.min.js',
       'vendor/ace/assets/js/ace-extra.min.js',
-      'vendor/ace/assets/js/bootstrap.min.js',
+      'vendor/ace/assets/js/bootstrap.min.js'
       // 'vendor/ace/assets/js/jquery.slimscroll.min.js',
 
     ],
     css: [
       'vendor/angular-loading-bar/build/loading-bar.css',
-      'vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.min.css',
+      'vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.6.min.css',
       'vendor/angular-bootstrap-colorpicker/css/colorpicker.css',
       'vendor/ace/assets/css/bootstrap.min.css',
       'vendor/ace/assets/css/jquery-ui-1.10.3.custom.min.css',

@@ -243,7 +243,7 @@ module.exports = function ( grunt ) {
      */
     recess: {
       build: {
-        src: [ '<%= app_files.less %>','<%= vendor_files.css %>' ],
+        src: [ '<%= app_files.less %>' ],
         dest: '<%= build_dir %>/assets/<%= pkg.name %>.css',
         options: {
           compile: true,
@@ -381,7 +381,7 @@ module.exports = function ( grunt ) {
           '<%= html2js.common.dest %>',
           '<%= html2js.app.dest %>',
           '<%= recess.build.dest %>',
-          // '<%= vendor_files.css %>',
+          '<%= vendor_files.css %>',
           '<%= vendor_files.nocss %>'
         ]
       },

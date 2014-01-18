@@ -3,7 +3,7 @@ var app = angular.module('socket', ['templates-app', 'templates-common',
 	'colorpicker.module', 'highcharts-ng'
 ]);
 
-app.constant('host_node', 'http://localhost:8080');
+app.constant('host_node', 'http://science.kmutt.ac.th:8080');
 app.constant('host_drupal', 'http://science.kmutt.ac.th/drupal');
 
 app.config(["cfpLoadingBarProvider",
@@ -132,9 +132,19 @@ app.factory("DataManager", ["Canvas", "Socket",
 				switch (type) {
 					case "pos":
 						Socket.on("send:" + type, function(data) {
-							if (data && data.pos) {
-								data.pos.x *= Canvas.width;
-								data.pos.y *= Canvas.height;
+							function scalePos(data) {
+								if (data && data.pos) {
+									data.pos.x *= Canvas.width;
+									data.pos.y *= Canvas.height;
+								}
+							}
+
+							if (angular.isArray(data)) {
+								angular.forEach(data, function(value, key) {
+									scalePos(value);
+								});
+							} else {
+								scalePos(data);
 							}
 							callback(data);
 						});
@@ -160,9 +170,6 @@ app.factory("DataManager", ["Canvas", "Socket",
 				// 	});
 				// 	callback(obj);
 				// });
-			},
-			removeData: function() {
-
 			}
 		};
 	}
@@ -197,6 +204,16 @@ app.service("Canvas", ["$q",
 			self.height = canvas.getHeight();
 			deferred.resolve(canvas);
 		};
+		this.setSize = function(w, h) {
+			// if (canvas) {
+			// 	canvas.setDimensions({
+			// 		width: w,
+			// 		height: h
+			// 	})
+			// 	self.width = w;
+			// 	self.height = h;
+			// }
+		}
 		this.getCanvas = function() {
 			// if (canvas) {
 			// 	deferred.resolve(canvas);
@@ -205,28 +222,32 @@ app.service("Canvas", ["$q",
 		};
 	}
 ]);
-app.service("Input", function() {
-	var self = this;
-	var txt;
-
-	this.init = function(calback) {
-		txt = $("#textbox");
-		txt.bind('keydown', function(e) {
-			if (e.keyCode == 13) {
-				calback();
-				self.hide();
-			}
-		});
-	};
-	this.hide = function() {
-		txt.val("");
-		txt.hide();
-	};
-	this.show = function(x, y) {
-		txt.css({
-			left: x,
-			top: y
-		});
-		txt.show();
-	};
-});
+app.service("Input", ["Canvas",
+	function(Canvas) {
+		var self = this;
+		var txt;
+		this.init = function(callback) {
+			txt = $("#textbox");
+			txt.bind('keydown', function(e) {
+				if (e.keyCode == 13) {
+					callback();
+				}
+			});
+			txt.focus(function() {
+				// $('.pad').parent().height(Canvas.height);
+				// console.log($('.pad').height());
+			});
+		};
+		this.hide = function() {
+			txt.val("");
+			txt.hide();
+		};
+		this.show = function(x, y) {
+			txt.css({
+				left: x,
+				top: y
+			});
+			txt.show();
+		};
+	}
+]);

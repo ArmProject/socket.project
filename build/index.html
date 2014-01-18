@@ -1,15 +1,23 @@
 <html ng-app="socket">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+		
 		
     	<link rel="stylesheet" type="text/css" href="assets/socket.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/angular-loading-bar/build/loading-bar.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.6.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/angular-bootstrap-colorpicker/css/colorpicker.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/bootstrap.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/jquery-ui-1.10.3.custom.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace-rtl.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace-skins.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/font-awesome.min.css" />
 	
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 		
+		<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>
+		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>	
 	</head>
 
 	<body ng-app="socket">
@@ -27,11 +35,9 @@
 		<script type="text/javascript" src="vendor/angular-gesture/ngGesture/gesture.js"></script>
 		<script type="text/javascript" src="vendor/angular-gesture/ngGesture/directive/ngSwipe.js"></script>
 		<script type="text/javascript" src="vendor/angular-gesture/ngGesture/directive/ngTouch.js"></script>
-		<script type="text/javascript" src="vendor/google_api/index.js"></script>
-		<script type="text/javascript" src="vendor/google_plus/index.js"></script>
 		<script type="text/javascript" src="vendor/jspdf/index.js"></script>
 		<script type="text/javascript" src="vendor/angular-loading-bar/build/loading-bar.min.js"></script>
-		<script type="text/javascript" src="vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.5.with-mousewheel.min.js"></script>
+		<script type="text/javascript" src="vendor/perfect-scrollbar/min/perfect-scrollbar-0.4.6.with-mousewheel.min.js"></script>
 		<script type="text/javascript" src="vendor/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
 		<script type="text/javascript" src="vendor/highcharts/index.js"></script>
 		<script type="text/javascript" src="vendor/highcharts-ng/src/directives/highcharts-ng.js"></script>
@@ -53,6 +59,7 @@
 		<script type="text/javascript" src="src/app/menu_left/tool_bar.js"></script>
 		<script type="text/javascript" src="src/app/menu_right/chat.js"></script>
 		<script type="text/javascript" src="src/app/menu_right/group.js"></script>
+		<script type="text/javascript" src="src/app/modal/controller.js"></script>
 		<script type="text/javascript" src="src/app/service/draw_factory.js"></script>
 		<script type="text/javascript" src="src/app/service/draw_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/google_manager.js"></script>
@@ -62,6 +69,6 @@
 		<script type="text/javascript" src="src/app/service/quiz_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/slide_manager.js"></script>
 		<script type="text/javascript" src="templates-common.js"></script>
-		<script type="text/javascript" src="templates-app.js"></script>		
+		<script type="text/javascript" src="templates-app.js"></script>	
 	</body>
 </html>

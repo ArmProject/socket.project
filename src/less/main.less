@@ -1,15 +1,35 @@
 @chat_box_color: grey;
 @draw_color: white;
 @loading_bar_color: red;
-@selected: blue;
+@selected_fg: white;
+@selected_bg: #478fca;
 @toolbar_color: #438eb9;
 @attr_color: #2e6589;
-@navbar_height: 30px;
+@navbar_height: 36px;
 @margin_left_answer: 100px;
-@toolbar_height: 25;
-@display_width: 100;
-@display_height: 100;
+@toolbar_height: 38px;
+@display_size: 108px;
 @item_left: 20px;
+@float_btn_top: 56px; 
+@room_width: 175px;
+@font: 'Droid Sans';
+.ace-settings-box{
+	width: 40vw;
+}
+.ace-settings-btn{
+	top: @float_btn_top;
+}
+hr{
+	margin-top: 10px !important;
+	margin-bottom: 10px !important;
+}
+.pagination{
+	z-index: 99;
+	top: 30px;
+}
+.room{
+	width: room_width;
+}
 .picker{
 	width: 30px;
 	height: 30px;
@@ -18,16 +38,26 @@
 .pick{
 	border: 2px solid white;
 }
+.chat-box img{
+	margin: 10;
+	width: 80%;
+}
 #color{
 	border-radius: 4px;
 	border: 2px solid white;
 }
 .display{
-	display: block;
+	/*display: block;
 	margin-left: auto;
-	margin-right: auto;
-	width: @display_width;
-	height: @display_height;
+	margin-right: auto;*/
+	width: @display_size;
+	height: @display_size;
+}
+.display-list{
+	height: (@display_size+10) * 2;
+}
+.display-list .card{
+	padding: 10px !important;
 }
 .thumbnail{
 	width: 100%;
@@ -36,19 +66,22 @@
 .item{
 	margin-left: @item_left;
 }
-.chat-box img{
-	padding: 10; 
-}
 .nav-right{
 	position: fixed;
-	z-index: 99;
+	z-index: 9999;
 	top: 0;
 	right: 0;
-	width: 40%;
+	/*width: 35%;*/
 	height: 100%;
 }
-.attr{
-	position: relative;
+.tool{
+	height: @toolbar_height;
+}
+/*.icon-tool{
+	height: @toolbar_height-11;
+	}*/
+	.attr{
+		position: relative;
 	/*float: left;
 	width: 30%;*/
 	background-color: @attr_color;
@@ -56,7 +89,6 @@
 	/*background-color: blue;*/
 }
 .nav-tab {
-	line-height: @navbar_height !important; 
 	height: @navbar_height !important;
 }
 .answer{
@@ -67,6 +99,7 @@
 	margin-top: 10px;
 }
 body,html{ 
+	font-family: @font !important;
 	width: 100%;
 	height: 100%; 
 	margin: 0; 
@@ -77,14 +110,15 @@ body{
 	padding-top: @navbar_height;      			
 }
 .selected{
-	background-color: @selected;
+	color: @selected_fg !important;
+	background-color: @selected_bg !important;
 }
 .navbar{
 	z-index: 0;
 	min-height: @navbar_height !important;
 }
 #loading-bar .bar {
-	background: @loading_bar_color;
+	background: @loading_bar_color !important;
 }
 .fluid-container{
 	padding-left: 15px;
@@ -101,8 +135,9 @@ body{
 }
 .toolbar{
 	position: absolute;
+	z-index: 9;
 	width: 100%;
-	bottom: -@toolbar_height*3/4;
+	bottom: 18-@toolbar_height;
 	left: 0;
 	background-color: @toolbar_color;
 	/*position: relative;
@@ -140,7 +175,7 @@ body{
 	height: 100%;
 	/*height: (100%)+28;*/
 	position: relative;
-	top: 28px;
+	/*top: 28px;*/
 	border: none;
 }
 .chat-box{
@@ -165,9 +200,57 @@ body{
 	margin: auto;
 }
 .modal{
-	display: block;
-	overflow: hidden;
+	display: block !important;
+	overflow: hidden !important;
 }
 .width-10{
 	width: 10%;
+}
+.width-15{
+	width: 15%;
+}
+.margin-10{
+	margin-left: 10px;
+}
+.margin-30{
+	margin-left: 30px;
+}
+.infobox-room{
+	/*width: 123px;
+	word-wrap: break-word;
+	margin-left: 10px;*/
+}
+.word-warp{
+	word-wrap: break-word;
+}
+.card {
+	padding: 3.5rem !important;
+	box-shadow: 0 1px 2px #aaa;
+	background: white;
+	margin: 0 1rem 1rem;
+	border-radius: 3px;
+}
+.v-line{
+	border-right: 1px solid #e3e3e3;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+.no-padding{
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+.no-margin{
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+.auto-margin{
+	margin: auto;
+}
+#logout{
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+	padding-left: 2px !important;
+	padding-right: 2px !important;
 }
