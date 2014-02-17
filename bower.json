@@ -19,6 +19,10 @@
     "angular-bootstrap-colorpicker": "~3.0.0",
     "bootstrap-slider": "*",
     "highcharts": "http://code.highcharts.com/highcharts.js",
-    "highcharts-ng": "~0.0.2"
+    "highcharts-ng": "~0.0.2",
+    "Recorderjs": "https://github.com/mattdiamond/Recorderjs.git",
+    "fotorama": "~4.4.9",
+    "ap.fotorama": "https://github.com/tamtakoe/ap.fotorama.git",
+    "buzz": "~1.1.0"
   }
 }

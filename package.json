@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "socket.io": "0.9.x",
-    "forever": "~0.10.10"
+    "forever": "~0.10.10",
+    "formidable": "~1.0.14"
   },
   "devDependencies": {
     "xml2js": "0.2.x",

@@ -1,4 +1,4 @@
-<html ng-app="socket">
+<html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		
@@ -9,6 +9,7 @@
     	<link rel="stylesheet" type="text/css" href="vendor/angular-bootstrap-colorpicker/css/colorpicker.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/bootstrap.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/jquery-ui-1.10.3.custom.min.css" />
+    	<link rel="stylesheet" type="text/css" href="vendor/fotorama/fotorama.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace-rtl.min.css" />
     	<link rel="stylesheet" type="text/css" href="vendor/ace/assets/css/ace-skins.min.css" />
@@ -21,7 +22,7 @@
 	</head>
 
 	<body ng-app="socket">
-
+		
 		<ui-view></ui-view>
     
 		
@@ -46,6 +47,10 @@
 		<script type="text/javascript" src="vendor/ace/assets/js/ace-elements.min.js"></script>
 		<script type="text/javascript" src="vendor/ace/assets/js/ace-extra.min.js"></script>
 		<script type="text/javascript" src="vendor/ace/assets/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="vendor/fotorama/fotorama.js"></script>
+		<script type="text/javascript" src="vendor/buzz/dist/buzz.js"></script>
+		<script type="text/javascript" src="vendor/Recorderjs/recorder.js"></script>
+		<script type="text/javascript" src="vendor/Recorderjs/recorderWorker.js"></script>
 		<script type="text/javascript" src="vendor/pdf.js/build/pdf.js"></script>
 		<script type="text/javascript" src="vendor/pdf.js/build/pdf.worker.js"></script>
 		<script type="text/javascript" src="vendor/pdf.js/web/compatibility.js"></script>
@@ -56,16 +61,19 @@
 		<script type="text/javascript" src="src/app/menu_left/draw_pad.js"></script>
 		<script type="text/javascript" src="src/app/menu_left/drive.js"></script>
 		<script type="text/javascript" src="src/app/menu_left/slide_pad.js"></script>
+		<script type="text/javascript" src="src/app/menu_left/slide_player.js"></script>
 		<script type="text/javascript" src="src/app/menu_left/tool_bar.js"></script>
 		<script type="text/javascript" src="src/app/menu_right/chat.js"></script>
 		<script type="text/javascript" src="src/app/menu_right/group.js"></script>
 		<script type="text/javascript" src="src/app/modal/controller.js"></script>
+		<script type="text/javascript" src="src/app/service/audio_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/draw_factory.js"></script>
 		<script type="text/javascript" src="src/app/service/draw_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/google_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/group_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/login_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/pdf_manager.js"></script>
+		<script type="text/javascript" src="src/app/service/player_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/quiz_manager.js"></script>
 		<script type="text/javascript" src="src/app/service/slide_manager.js"></script>
 		<script type="text/javascript" src="templates-common.js"></script>

@@ -1,5 +1,90 @@
-var io = require('socket.io').listen(8080);
+var config = require('./module/config.js');
+var formidable = require('formidable');
+var http = require('http');
+var util = require('util');
 var fs = require('fs');
+
+var server = http.createServer().listen(8080);
+
+server.on('request', function(request, response) {
+	var form = new formidable.IncomingForm()
+	form.encoding = 'utf8';
+	form.uploadDir = config.audio_path;
+	form.keepExtensions = true;
+	form.parse(request);
+
+	response.writeHead(200, {
+		'Content-Type': 'text/plain',
+		'Access-Control-Allow-Origin': '*',
+		'Access-Control-Allow-Methods': 'GET,POST'
+	});
+
+	form.on('error', function(err) {
+		response.writeHead(200, {
+			'content-type': 'text/plain'
+		});
+		response.end('error:\n\n' + util.inspect(err));
+	});
+
+	form.on('field', function(field, value) {
+		if (field == "init") {
+			var path = form.uploadDir + value;
+
+			function removeDir(path) {
+				if (fs.existsSync(path)) {
+					fs.readdirSync(path).forEach(function(file, index) {
+						var curPath = path + "/" + file;
+						if (fs.statSync(curPath).isDirectory()) {
+							removeDir(curPath);
+						} else {
+							fs.unlinkSync(curPath);
+						}
+					});
+					fs.rmdirSync(path);
+				}
+			};
+			removeDir(path);
+		}
+	});
+	form.on('file', function(field, file) {
+		var path = form.uploadDir + field;
+		fs.mkdir(path, function(e) {
+			fs.rename(file.path, path + '/' + file.name, function(err) {
+				if (err) {
+					console.log("error " + err);
+				}
+			});
+		});
+		// fs.rename(file.path, form.uploadDir + file.name, function(err) {
+		// 	if (err) {
+		// 		console.log("error");
+		// 	} else {
+		// 		console.log("success");
+		// 	}
+		// });
+
+		// fs.readFile(file.path, function(err, data) {
+		// 	fs.writeFile(__dirname + '/audio' +
+		// 		file.name,
+		// 		data,
+		// 		'binary',
+		// 		function(err) {
+		// 			if (err) {
+		// 				console.log("error");
+		// 			} else {
+		// 				console.log("success");
+		// 			}
+		// 		});
+		// });
+	});
+
+	form.on('end', function() {
+		response.end('');
+	});
+
+});
+
+var io = require('socket.io').listen(server);
 // var md = require('./module/module.js');
 // md.test()
 // var builder = require('xmlbuilder');
@@ -64,7 +149,28 @@ var Logger = function() {
 					data: []
 				}
 			} else {
-				data[room].quiz.data.push(quiz);
+				// data[room].quiz.data.push(quiz);
+
+				data[room].quiz.data[quiz.question] = data[room].quiz.data[quiz.question] || {
+					question: quiz.question,
+					answer: []
+				};
+				var question = data[room].quiz.data[quiz.question];
+				question.answer[quiz.answer] = question.answer[quiz.answer] || [];
+				var answer = question.answer[quiz.answer];
+				answer.push(quiz.user);
+				// console.log(answer)
+				console.log(data[room].quiz.data)
+
+
+
+				// if (!question) {
+				// 	data[room].quiz.data[quiz.question] = {
+				// 		answer: []
+				// 	};
+				// } else {
+				// 	data[room].quiz.data[quiz.question].answer[quiz.answer].push(quiz.user)
+				// }
 			}
 		}
 	}
@@ -75,17 +181,23 @@ var Logger = function() {
 		if (data[room]) {
 			var json = JSON.stringify(data[room]);
 			var name = room == "" ? "default" : room;
-			fs.writeFile(__dirname + '/log/' + name + '.json', json, function(err) {
-				if (err) return console.log(err);
-				console.log('Save "' + room + '" Data...');
-				delete data[room];
+			var dir = config.log_path + data[room].room.owner + "/";
+			fs.mkdir(dir, function(err) {
+				// if (err) {
+				// 	console.log('error' + err);
+				// }
+				fs.writeFile(dir + name + '.json', json, function(err) {
+					if (err) return console.log(err);
+					console.log('Save "' + room + '" Data...');
+					delete data[room];
+				});
 			});
 		}
 	}
 
 	this.load = function(room) {
 		var name = room == "" ? "default" : room;
-		return fs.readFileSync(__dirname + '/log/' + name + '.json', 'utf8');
+		return fs.readFileSync(config.log_path + name + '.json', 'utf8');
 	}
 
 }
@@ -134,7 +246,7 @@ io.sockets.on('connection', function(socket) {
 		var name = data.room.name;
 		var room = name == "" ? "" : "/" + name;
 		if (room in io.sockets.manager.rooms) {
-			if(data.exit){
+			if (data.exit) {
 				socket.leave(data.exit);
 			}
 
@@ -258,7 +370,8 @@ io.sockets.on('connection', function(socket) {
 			if (room != null) {
 				var data = logger.logData[room];
 				if (data) {
-					var msg = data.msg;
+					var msg = data.msg
+					console.log("load " + msg);
 					socket.emit('send:msg', msg);
 				}
 				// console.log(getId() + " Init slide");
@@ -269,7 +382,13 @@ io.sockets.on('connection', function(socket) {
 		socket.get('roomName', function(err, room) {
 			if (room != null) {
 				socket.broadcast.to(room).emit('send:msg', data.msg);
-				logger.logMsg(data.msg);
+				socket.get('userName', function(err, user) {
+					console.log(user + " save " + data.msg);
+					logger.logMsg({
+						'emotion': data.msg,
+						'user': user
+					});
+				});
 				// console.log("Send msg : " + data.msg);
 			}
 		});
@@ -315,9 +434,43 @@ io.sockets.on('connection', function(socket) {
 			if (room != null) {
 				socket.broadcast.to(room).emit('send:quiz', data);
 				// console.log("Send quiz");
-
-				logger.logQuiz(data);
+				socket.get('userName', function(err, user) {
+					data.user = user;
+					logger.logQuiz(data);
+				});
 			}
 		});
+	});
+
+	socket.on('load:slideshow', function(data, callback) {
+		if (data != null) {
+			fs.readdir(config.audio_path + data, function(err, files) {
+				if (err) throw err;
+				var result = {
+					path: config.audio,
+					n: files.length / 2
+				};
+				callback(result);
+			});
+		} else {
+			fs.readdir(config.audio_path, function(err, files) {
+				if (err) throw err;
+				var result = {
+					list: []
+				};
+				var total = files.length;
+				files.forEach(function(file, index) {
+					fs.lstat(config.audio_path + file, function(err, stats) {
+						if (stats.isDirectory()) {
+							result.list.push(file);
+						}
+						if (index >= total - 1) {
+							callback(result);
+						}
+					});
+
+				});
+			});
+		}
 	});
 });

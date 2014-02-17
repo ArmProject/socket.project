@@ -3,6 +3,7 @@ var app = angular.module('socket', ['templates-app', 'templates-common',
 	'colorpicker.module', 'highcharts-ng'
 ]);
 
+app.constant('host_server', 'http://science.kmutt.ac.th/wbl/server');
 app.constant('host_node', 'http://science.kmutt.ac.th:8080');
 app.constant('host_drupal', 'http://science.kmutt.ac.th/drupal');
 
@@ -18,7 +19,7 @@ app.config(["$stateProvider", "$urlRouterProvider",
 		$stateProvider.state('main', {
 			url: "/main",
 			templateUrl: 'main/template/main.tpl.html',
-			controller: 'MainCtrl'
+			// controller: 'MainCtrl'
 		}).state('main.draw', {
 			url: '/draw',
 			templateUrl: 'menu_left/template/draw_pad.tpl.html',
@@ -53,6 +54,10 @@ app.config(["$stateProvider", "$urlRouterProvider",
 			url: '/quiz/student',
 			templateUrl: 'menu_left/template/quiz_student.tpl.html',
 			controller: 'QuizStudentCtrl'
+		}).state('main.player', {
+			url: '/player',
+			templateUrl: 'menu_left/template/slide_player.tpl.html',
+			// controller: 'PlayerCtrl'
 		});
 
 	}
@@ -158,6 +163,10 @@ app.factory("DataManager", ["Canvas", "Socket",
 
 			},
 			loadData: function(type, data, callback) {
+				Socket.remove("load:" + type);
+				Socket.emit("load:" + type, data, function(data) {
+					callback(data);
+				});
 				// Socket.remove("load:" + type);
 				// Socket.emit("load:" + type, data, function(data) {
 				// 	var obj = [];
@@ -203,6 +212,7 @@ app.service("Canvas", ["$q",
 			self.width = canvas.getWidth();
 			self.height = canvas.getHeight();
 			deferred.resolve(canvas);
+			return canvas;
 		};
 		this.setSize = function(w, h) {
 			// if (canvas) {

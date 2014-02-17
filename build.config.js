@@ -51,7 +51,7 @@ module.exports = {
     nojs: [
       'vendor/pdf.js/build/pdf.js',
       'vendor/pdf.js/build/pdf.worker.js',
-      'vendor/pdf.js/web/compatibility.js',
+      'vendor/pdf.js/web/compatibility.js'
     ],
     nocss: [
       'vendor/ace/assets/css/ace.min.css',
@@ -86,7 +86,11 @@ module.exports = {
       'vendor/ace/assets/js/ace.min.js',
       'vendor/ace/assets/js/ace-elements.min.js',
       'vendor/ace/assets/js/ace-extra.min.js',
-      'vendor/ace/assets/js/bootstrap.min.js'
+      'vendor/ace/assets/js/bootstrap.min.js',
+      'vendor/fotorama/fotorama.js',
+      'vendor/buzz/dist/buzz.js',
+      'vendor/Recorderjs/recorder.js',
+      'vendor/Recorderjs/recorderWorker.js'
       // 'vendor/ace/assets/js/jquery.slimscroll.min.js',
 
     ],
@@ -96,6 +100,7 @@ module.exports = {
       'vendor/angular-bootstrap-colorpicker/css/colorpicker.css',
       'vendor/ace/assets/css/bootstrap.min.css',
       'vendor/ace/assets/css/jquery-ui-1.10.3.custom.min.css',
+      'vendor/fotorama/fotorama.css'
     ]
   },
 };

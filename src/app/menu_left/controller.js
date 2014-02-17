@@ -125,7 +125,7 @@ app.controller('DriveCtrl', ["$scope", "$modal", "cfpLoadingBar", "Room", "Login
 					var data = cs.toDataURL({
 						format: type.split("/")
 					});
-					
+
 					var obj = {};
 					obj.type = type;
 					obj.data = data.split(",")[1];
@@ -143,17 +143,9 @@ app.controller('DriveCtrl', ["$scope", "$modal", "cfpLoadingBar", "Room", "Login
 						// name = name + "-Slide";
 						var id = SlideManager.slide;
 						if (id) {
-							PDFService.getPdf(id).then(function(pdf) {
-
-								var n = pdf.pdfInfo.numPages;
-								var mirrors = [];
-								for (var i = 1; i <= n; i++) {
-									var cs = loadCanvas(Canvas.types.MIRROR + "-" + i);
-									mirrors.push(cs);
-								}
-
-								PDFService.init(mirrors);
-								PDFService.render(pdf, n).then(function(data) {
+							$scope.$emit('save_slide', {
+								type: 'pdf',
+								callback: function(data) {
 									var obj = {};
 									obj.type = "application/pdf";
 									obj.data = data.split(",")[1];
@@ -161,9 +153,9 @@ app.controller('DriveCtrl', ["$scope", "$modal", "cfpLoadingBar", "Room", "Login
 									GoogleService.insertFile(obj).then(function(data) {
 										cfpLoadingBar.complete();
 									});
-								});
-
+								}
 							});
+
 						}
 					});
 				});
@@ -189,21 +181,26 @@ app.controller('HandWriteCtrl', ["$scope", "$rootScope", "DrawFactory", "Canvas"
 	}
 ]);
 
-app.controller('SlideCtrl', ["$scope", "$rootScope", "LoginManager", "GoogleService", "DrawFactory", "SlideManager",
-	function($scope, $rootScope, LoginManager, GoogleService, DrawFactory, SlideManager) {
+app.controller('SlideCtrl', ["$scope", "$rootScope", "LoginManager", "GoogleService", "DrawFactory", "SlideManager", "VoiceManager",
+	function($scope, $rootScope, LoginManager, GoogleService, DrawFactory, SlideManager, VoiceManager) {
 		LoginManager.getUser().then(function(user) {
 			$scope.isSend = LoginManager.getAccess() == LoginManager.level.TEACHER;
 			$scope.isStart = true;
 			$scope.isEnd = false;
+			$scope.id = "mirror-" + SlideManager.index;
+
 			$scope.nextIndex = function(isSwipe) {
 				if ($scope.tool == DrawFactory.tools.MODE || isSwipe) {
+					VoiceManager.stop(SlideManager.index);
+					VoiceManager.start();
 					SlideManager.next();
 					$scope.isStart = SlideManager.isStart();
 					$scope.isEnd = SlideManager.isEnd();
+					// VoiceManager.playback();
 				}
 			};
 			$scope.prevIndex = function(isSwipe) {
-				if ($scope.tool == DrawFactory.tools.MODE || isSwipe) {
+				if (!VoiceManager.isRecord() && ($scope.tool == DrawFactory.tools.MODE || isSwipe)) {
 					SlideManager.prev();
 					$scope.isStart = SlideManager.isStart();
 					$scope.isEnd = SlideManager.isEnd();

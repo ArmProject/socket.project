@@ -53,9 +53,10 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			};
 		}
 		this.init = function(name) {
-			Canvas.init(name);
-			Canvas.getCanvas().then(function(cs) {
-				canvas = cs;
+			canvas = Canvas.init(name);
+			// Canvas.init(name);
+			// Canvas.getCanvas().then(function(cs) {
+			// 	canvas = cs;
 				canvas.selection = false;
 				canvas.defaultCursor = "crosshair";
 				canvas.on("object:selected", function(e) {
@@ -69,7 +70,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 					obj.set('hasRotatingPoint', false);
 				});
 				self.newObject(name);
-			});
+			// });
 		};
 		this.newObject = function(name) {
 			id = name;
@@ -156,7 +157,21 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			self.disableMove(path);
 
 			if (current instanceof fabric.Group) {
+				// var x = current.get("moveX"),
+				// 	y = current.get("moveY");
+				// if (x && y) {
+				// 	path.set({
+				// 		left: path.getLeft() + x,
+				// 		top: path.getTop() + y
+				// 	});
+				// }
 				current.addWithUpdate(path);
+				// if (!current.get("initX") && !current.get("initY")) {
+				// 	current.set({
+				// 		"initX": current.getLeft(),
+				// 		"initY": current.getTop()
+				// 	});
+				// }
 			} else {
 				canvas.remove(data);
 				canvas.add(path);
@@ -274,11 +289,14 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			if (id) {
 				if (!(id in groups)) {
 					groups[id] = new fabric.Group();
-					groups[id].set({
-						"id": id,
-						"originX": 'center',
-						"originY": 'center'
-					});
+
+					// groups[id].on("object:moving", function(e) {
+					// 	groups[id].set({
+					// 		"moveX": e.target.getLeft() - groups[id].get("initX"),
+					// 		"moveY": e.target.getTop() - groups[id].get("initY")
+					// 	});
+					// });
+
 					self.disableMove(groups[id]);
 					canvas.add(groups[id]);
 				}

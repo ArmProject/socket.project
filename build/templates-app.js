@@ -1,4 +1,4 @@
-angular.module('templates-app', ['main/template/login.tpl.html', 'main/template/main.tpl.html', 'main/template/menu_left.tpl.html', 'menu_left/template/attribute.tpl.html', 'menu_left/template/detail.tpl.html', 'menu_left/template/display.tpl.html', 'menu_left/template/draw_pad.tpl.html', 'menu_left/template/drive.tpl.html', 'menu_left/template/drive_quiz.tpl.html', 'menu_left/template/drive_slide.tpl.html', 'menu_left/template/home_student.tpl.html', 'menu_left/template/home_teacher.tpl.html', 'menu_left/template/quiz_student.tpl.html', 'menu_left/template/quiz_teacher.tpl.html', 'menu_left/template/slide_pad.tpl.html', 'menu_left/template/tool_bar.tpl.html', 'menu_right/template/chat.tpl.html', 'menu_right/template/group.tpl.html', 'modal/template/attribute.tpl.html', 'modal/template/detail.tpl.html', 'modal/template/display.tpl.html', 'modal/template/save.tpl.html']);
+angular.module('templates-app', ['main/template/login.tpl.html', 'main/template/main.tpl.html', 'main/template/menu_left.tpl.html', 'menu_left/template/attribute.tpl.html', 'menu_left/template/detail.tpl.html', 'menu_left/template/display.tpl.html', 'menu_left/template/draw_pad.tpl.html', 'menu_left/template/drive.tpl.html', 'menu_left/template/drive_player.tpl.html', 'menu_left/template/drive_quiz.tpl.html', 'menu_left/template/drive_slide.tpl.html', 'menu_left/template/home_student.tpl.html', 'menu_left/template/home_teacher.tpl.html', 'menu_left/template/quiz_student.tpl.html', 'menu_left/template/quiz_teacher.tpl.html', 'menu_left/template/slide_pad.tpl.html', 'menu_left/template/slide_player.tpl.html', 'menu_left/template/tool_bar.tpl.html', 'menu_right/template/chat.tpl.html', 'menu_right/template/group.tpl.html', 'modal/template/attribute.tpl.html', 'modal/template/detail.tpl.html', 'modal/template/display.tpl.html', 'modal/template/save.tpl.html']);
 
 angular.module("main/template/login.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("main/template/login.tpl.html",
@@ -30,9 +30,11 @@ angular.module("main/template/login.tpl.html", []).run(["$templateCache", functi
 angular.module("main/template/main.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("main/template/main.tpl.html",
     "<div ng-controller=\"MainCtrl\" re-size>\n" +
+    "	<div style=\"display:none;\">\n" +
+    "		<canvas id=\"data\"/>\n" +
+    "	</div>	\n" +
     "\n" +
     "	<menu-left class=\"navbar navbar-fixed-top\"></menu-left>\n" +
-    "	\n" +
     "	<div class=\"fluid-container\">\n" +
     "		<div class=\"row fit-height\">\n" +
     "			\n" +
@@ -65,6 +67,9 @@ angular.module("main/template/menu_left.tpl.html", []).run(["$templateCache", fu
     "		<li class=\"nav-tab\">\n" +
     "			<a class=\"quiz_page red\" ui-sref=\"main.quiz\"></a>\n" +
     "		</li>\n" +
+    "		<li class=\"nav-tab\">\n" +
+    "			<a class=\"player_page grey\" ui-sref=\"main.player\"></a>\n" +
+    "		</li>\n" +
     "	</ul>\n" +
     "<!-- 		<ul class=\"nav ace-nav\">\n" +
     "			<li class=\"nav-tab light-orange\"><a ui-sref=\"main.home\">Home</a></li>\n" +
@@ -75,6 +80,14 @@ angular.module("main/template/menu_left.tpl.html", []).run(["$templateCache", fu
     "		</ul> -->\n" +
     "	</div>\n" +
     "	<div class=\"navbar-header pull-right white bigger-120\">\n" +
+    "		<!-- 		<span class=\"align-middle\"><input type=\"button\" class=\"btn quiz_page\" style=\"background-color: rgba(255, 255, 255, 0);\"></span> -->\n" +
+    "		<span ng-show=\"isTeacher\">\n" +
+    "			<div class=\"v-line btn btn-inverse inline nav-tab\" ng-click=\"record()\">\n" +
+    "				<i class=\"no-margin\" style=\"color:red;\" ng-class=\"{'icon-pause': isRecord,'icon-circle': !isRecord}\"></i>\n" +
+    "				<!-- <span class=\"bigger-110\">logout</span> -->\n" +
+    "			</div>\n" +
+    "		</span>\n" +
+    "\n" +
     "		<span class=\"align-middle\">{{roomName}}</span>\n" +
     "		<span class=\"v-line align-middle\"></span>\n" +
     "		<span class=\"align-middle\">{{userName}}</span>\n" +
@@ -314,6 +327,9 @@ angular.module("menu_left/template/drive.tpl.html", []).run(["$templateCache", f
     "				<button class=\"btn btn-app btn-xs no-radius btn-light\" ng-click=\"tab = 'quiz'\" ng-show=\"hasQuiz\">\n" +
     "					Quiz\n" +
     "				</button>\n" +
+    "				<button class=\"btn btn-app btn-xs no-radius btn-light\" ng-click=\"tab = 'player'\">\n" +
+    "					Video\n" +
+    "				</button>\n" +
     "			</div>\n" +
     "			<div class=\"widget-toolbar\">\n" +
     "				<button class=\"btn btn-xs btn-yellow bigger\" ng-click=\"saveSlide()\">\n" +
@@ -330,8 +346,24 @@ angular.module("menu_left/template/drive.tpl.html", []).run(["$templateCache", f
     "		<div class=\"widget-body\" ng-switch on=\"tab\">\n" +
     "			<drive-slide ng-switch-when=\"slide\"></drive-slide>\n" +
     "			<drive-quiz ng-switch-when=\"quiz\"></drive-quiz>\n" +
+    "			<drive-player ng-switch-when=\"player\"></drive-player>\n" +
     "		</div>\n" +
     "	</div> \n" +
+    "</div>");
+}]);
+
+angular.module("menu_left/template/drive_player.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/drive_player.tpl.html",
+    "<div class=\"list fit-height\" scroll-bar>\n" +
+    "\n" +
+    "	<ul class=\"item-list\">\n" +
+    "		<li class=\"item-grey clearfix\" ng-class=\"{selected: selected==$index}\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
+    "			<i class=\"icon-list-alt bigger-160 align-middle\"></i>\n" +
+    "			<span>{{data.title}}</span>\n" +
+    "			<!-- <span class=\"pull-right\">{{data.date}}</span> -->\n" +
+    "		</li>\n" +
+    "	</ul>\n" +
+    "\n" +
     "</div>");
 }]);
 
@@ -352,10 +384,6 @@ angular.module("menu_left/template/drive_quiz.tpl.html", []).run(["$templateCach
 
 angular.module("menu_left/template/drive_slide.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("menu_left/template/drive_slide.tpl.html",
-    "\n" +
-    "<div style=\"display:none;\">\n" +
-    "	<canvas id=\"data\"/>\n" +
-    "</div>		\n" +
     "<div class=\"list fit-height\" scroll-bar>\n" +
     "	<ul class=\"item-list\">\n" +
     "		<li class=\"item-grey clearfix\" ng-class=\"{selected: selected==data.id}\" ng-repeat=\"data in datas\" ng-click=\"select($index)\">\n" +
@@ -473,10 +501,12 @@ angular.module("menu_left/template/slide_pad.tpl.html", []).run(["$templateCache
     "\n" +
     "	<div class=\"row\">\n" +
     "		<div class=\"pad col-lg-10\">\n" +
+    "			<!-- <audio id=\"recorded-audio\" controls=\"controls\"></audio> -->\n" +
+    "			\n" +
     "			<div class=\"control-area\" ng-show=\"isShow\" ng-click=\"prevIndex(false)\"></div>\n" +
     "			<div class=\"control-area\" ng-show=\"isShow\" ng-click=\"nextIndex(false)\"></div>\n" +
     "			<div class=\"mirror\">\n" +
-    "				<canvas id=\"mirror-1\" draw-pad text=\"{{text}}\" send=\"isSend\">\n" +
+    "				<canvas id=\"{{id}}\" draw-pad text=\"{{text}}\" send=\"isSend\">\n" +
     "				</canvas>\n" +
     "				<input type=\"text\" id=\"textbox\" ng-model=\"text\">\n" +
     "			</div>\n" +
@@ -502,6 +532,14 @@ angular.module("menu_left/template/slide_pad.tpl.html", []).run(["$templateCache
     "	</div>\n" +
     "\n" +
     "	\n" +
+    "</div>");
+}]);
+
+angular.module("menu_left/template/slide_player.tpl.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("menu_left/template/slide_player.tpl.html",
+    "<div class=\"fit-height\">\n" +
+    "	<audio class=\"width-100\" id=\"control\" controls></audio>\n" +
+    "	<slide-player></slide-player>\n" +
     "</div>");
 }]);
 
