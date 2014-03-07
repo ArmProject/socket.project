@@ -146,31 +146,26 @@ var Logger = function() {
 			if (quiz.node) {
 				data[room].quiz = {
 					node: quiz.node,
-					data: []
+					data: {}
 				}
 			} else {
 				// data[room].quiz.data.push(quiz);
 
-				data[room].quiz.data[quiz.question] = data[room].quiz.data[quiz.question] || {
-					question: quiz.question,
-					answer: []
-				};
-				var question = data[room].quiz.data[quiz.question];
-				question.answer[quiz.answer] = question.answer[quiz.answer] || [];
-				var answer = question.answer[quiz.answer];
-				answer.push(quiz.user);
-				// console.log(answer)
-				console.log(data[room].quiz.data)
+				// data[room].quiz.data[quiz.question] = data[room].quiz.data[quiz.question] || {
+				// 	question: quiz.question,
+				// 	answer: []
+				// };
+				// var question = data[room].quiz.data[quiz.question];
+				// question.answer[quiz.answer] = question.answer[quiz.answer] || [];
+				// var answer = question.answer[quiz.answer];
+				// answer.push(quiz.user);
+				// // console.log(answer)
+				// console.log(data[room].quiz.data)
 
-
-
-				// if (!question) {
-				// 	data[room].quiz.data[quiz.question] = {
-				// 		answer: []
-				// 	};
-				// } else {
-				// 	data[room].quiz.data[quiz.question].answer[quiz.answer].push(quiz.user)
-				// }
+				data[room].quiz.data[quiz.user] = data[room].quiz.data[quiz.user] || [];
+				var user = data[room].quiz.data[quiz.user];
+				user[quiz.question] = quiz.answer + 1;
+				// console.log(user);
 			}
 		}
 	}
