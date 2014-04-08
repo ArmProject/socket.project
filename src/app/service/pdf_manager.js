@@ -43,20 +43,32 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 
 
 
-		function setScale(page) {
-			var drawCanvas = mirrors[0];
-			var w = drawCanvas.getWidth(),
-				h = drawCanvas.getHeight();
+		function setScale(page, w, h) {
 			var tmp = page.getViewport(1);
 			return w < h ? w / tmp.width : h / tmp.height;
 		}
+		this.getScale = function(pdf, w, h) {
+			var deferred = $q.defer();
+			pdf.getPage(1).then(function(page) {
+				var scale = setScale(page, w, h);
+				var view = page.getViewport(scale);
+				deferred.resolve({
+					x: view.width,
+					y: view.height
+				})
+			});
+			return deferred.promise;
+		}
 		this.renderImage = function(pdf, n, callback) {
 			var deferred = $q.defer();
+			i = 1;
 			var render = function() {
 				pdf.getPage(i).then(function(page) {
 					var drawCanvas = mirrors[i - 1];
 					if (!scale) {
-						scale = setScale(page);
+						var w = drawCanvas.getWidth(),
+							h = drawCanvas.getHeight();
+						scale = setScale(page, w, h);
 					}
 					var view = page.getViewport(scale);
 
@@ -67,7 +79,6 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 
 					var w = view.width,
 						h = view.height;
-
 					page.render(renderContext).then(function() {
 						fabric.Image.fromURL(slideCanvas.toDataURL(), function(img) {
 							drawCanvas.add(img);
@@ -103,7 +114,9 @@ app.service('PDFService', ["$q", "$timeout", "GoogleService",
 				pdf.getPage(i).then(function(page) {
 					var drawCanvas = mirrors[i - 1];
 					if (!scale) {
-						scale = setScale(page);
+						var w = drawCanvas.getWidth(),
+							h = drawCanvas.getHeight();
+						scale = setScale(page, w, h);
 					}
 					var view = page.getViewport(scale);
 

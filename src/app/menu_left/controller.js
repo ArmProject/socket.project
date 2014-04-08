@@ -188,11 +188,12 @@ app.controller('SlideCtrl', ["$scope", "$rootScope", "LoginManager", "GoogleServ
 			$scope.isStart = true;
 			$scope.isEnd = false;
 			$scope.id = "mirror-" + SlideManager.index;
-
 			$scope.nextIndex = function(isSwipe) {
 				if ($scope.tool == DrawFactory.tools.MODE || isSwipe) {
-					VoiceManager.stop(SlideManager.index);
-					VoiceManager.start();
+					if (VoiceManager.isRecord()) {
+						VoiceManager.stop(SlideManager.index);
+						VoiceManager.start();
+					}
 					SlideManager.next();
 					$scope.isStart = SlideManager.isStart();
 					$scope.isEnd = SlideManager.isEnd();
@@ -242,6 +243,7 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 		LoginManager.getUser().then(function(user) {
 			if (angular.isUndefined($rootScope.room)) {
 				$rootScope.room = {
+					id: "",
 					name: "",
 					display: "",
 					description: ""
@@ -257,11 +259,12 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 				}
 			});
 			$scope.create = function() {
-				if ($scope.room.name != "" && $scope.room.display != "") {
+				if ($scope.room.name != "") {
 					Room.room = $scope.room.name;
 					Room.user = $scope.user.username;
 					Socket.emit("create:room", {
 						room: {
+							id: $scope.room.id,
 							name: $scope.room.name,
 							owner: $scope.user.username,
 							display: $scope.room.display,
@@ -275,7 +278,7 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 			};
 			$scope.close = function() {
 				Socket.emit("close:room", {}, function(emails) {
-					console.log(emails);
+					// console.log(emails);
 				});
 			};
 			$scope.selectDisplay = function() {
@@ -284,7 +287,6 @@ app.controller('HomeTeacherCtrl', ["$scope", "$modal", "$rootScope", "Room", "So
 					controller: 'DisplayCtrl'
 				});
 				modal.result.then(function(url) {
-					console.log()
 					$scope.room.display = url;
 				});
 			};
@@ -326,6 +328,7 @@ app.controller('HomeStudentCtrl', ["$scope", "$rootScope", "$modal", "Room", "So
 					}, function(id) {
 
 					});
+					Room.id = $scope.room.id;
 					Room.room = $scope.room.name;
 					Room.user = $scope.user.username;
 				} else {

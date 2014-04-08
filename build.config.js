@@ -62,7 +62,7 @@ module.exports = {
     ],
     js: [
       'vendor/socket.io/index.js',
-      'vendor/fabric/dist/all.min.js',
+      'vendor/fabric/dist/fabric.min.js',
       'vendor/jquery/jquery.min.js',
       'vendor/angular/angular.min.js',
       'vendor/angular-ui-router/release/angular-ui-router.min.js',
@@ -88,7 +88,7 @@ module.exports = {
       'vendor/ace/assets/js/ace-extra.min.js',
       'vendor/ace/assets/js/bootstrap.min.js',
       'vendor/fotorama/fotorama.js',
-      'vendor/buzz/dist/buzz.js',
+      'vendor/buzz/dist/buzz.min.js',
       'vendor/Recorderjs/recorder.js',
       'vendor/Recorderjs/recorderWorker.js'
       // 'vendor/ace/assets/js/jquery.slimscroll.min.js',

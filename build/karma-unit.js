@@ -10,7 +10,7 @@ module.exports = function(karma) {
 		 */
 		files: [
 			// 'vendor/socket.io/index.js',
-			// 'vendor/fabric/dist/all.min.js',
+			// 'vendor/fabric/dist/fabric.min.js',
 			// 'vendor/jquery/jquery.min.js',
 			// 'vendor/angular/angular.min.js',
 			// 'vendor/angular-ui-router/release/angular-ui-router.min.js',
@@ -31,21 +31,21 @@ module.exports = function(karma) {
 			// 'vendor/ace/assets/js/ace-extra.min.js',
 			// 'vendor/ace/assets/js/bootstrap.min.js',
 			// 'vendor/fotorama/fotorama.js',
-			// 'vendor/buzz/dist/buzz.js',
+			// 'vendor/buzz/dist/buzz.min.js',
 			// 'vendor/Recorderjs/recorder.js',
 			// 'vendor/Recorderjs/recorderWorker.js',
 			// 'build/templates-app.js',
 			// 'build/templates-common.js',
 			// 'vendor/angular-mocks/angular-mocks.js',
 			// 
-			// 'src/**/*.spec.js'
+			'src/app/*.spec.js'
 		],
 
 		exclude: [
 			// 'src/**/*.spec.js',
 			'src/server/**/*.js'
 		],
-		frameworks: ['ng-scenario'],
+		frameworks: ['ng-scenario', 'jasmine'],
 		plugins: ['karma-ng-scenario','karma-jasmine', 'karma-chrome-launcher'],
 
 		/**
@@ -59,10 +59,10 @@ module.exports = function(karma) {
 		 */
 		port: 9876,
 		runnerPort: 9100,
-		// proxies: {
-		// 	'/': 'http://localhost/socket'
-		// },
-		// urlRoot: '/__karma__/',
+		proxies: {
+			'/': 'http://localhost/socket/#main'
+		},
+		urlRoot: '/__karma__/',
 		/** 
 		 * Disable file watching by default.
 		 */
@@ -82,8 +82,8 @@ module.exports = function(karma) {
 		 * the aesthetic advantage of not launching a browser every time you save.
 		 */
 
-		// browsers: [
-		//   'Firefox'
-		// ]
+		browsers: [
+		  'Chrome'
+		]
 	});
 };

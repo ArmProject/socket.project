@@ -1,20 +1,23 @@
 <div ng-swipe-up="checkToolSwipe(false)" ng-swipe-down="checkToolSwipe(true)" ng-swipe-left="checkMenuSwipe(true)" ng-swipe-right="checkMenuSwipe(false)">
 
 	<div is-visible="isDesktop" class="visible-lg"></div>
-
+	<div modal-backdrop ng-show="isLoad"></div>
 	<div class="row">
-		<div class="pad col-lg-10">
+		<div class="col-lg-10 fit-height">
 			<!-- <audio id="recorded-audio" controls="controls"></audio> -->
-			
-			<div class="control-area" ng-show="isShow" ng-click="prevIndex(false)"></div>
-			<div class="control-area" ng-show="isShow" ng-click="nextIndex(false)"></div>
-			<div class="mirror">
-				<canvas id="{{id}}" draw-pad text="{{text}}" send="isSend">
-				</canvas>
-				<input type="text" id="textbox" ng-model="text">
-			</div>
-			<div class="slide-pad" fit-size>
-				<slide-pad send="isSend"></slide-pad>
+			<div class="pad ">
+				<div class="control-area" ng-show="isShow" ng-click="prevIndex(false)"></div>
+				<div class="control-area" ng-show="isShow" ng-click="nextIndex(false)"></div>
+				<div class="mirror center">
+					<div class="inline">
+						<canvas id="{{id}}" draw-pad text="{{text}}" init="false" send="isSend">
+						</canvas>
+						<input type="text" id="textbox" ng-model="text">
+					</div>
+				</div>
+				<div class="slide-pad" fit-size>
+					<slide-pad send="isSend" load="isLoad"></slide-pad>
+				</div>
 			</div>
 			<tool-bar class="toolbar" tool="tool" is-hide="{{hideTool&&!isDesktop}}"></tool-bar>
 		</div>
@@ -22,8 +25,8 @@
 		<div ng-if="isDesktop" class="well col-lg-2 fit-height">
 			<chat></chat>
 		</div>
-		<div ng-if="!isDesktop" class="width-35">
-			<div class="nav-right">
+		<div ng-if="!isDesktop">
+			<div class="nav-right ">
 				<div class="btn btn-app btn-xs btn-warning ace-settings-btn" ng-click="showMenu=!showMenu">
 					<i class="icon-chat"></i>
 				</div>

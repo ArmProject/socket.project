@@ -43,6 +43,67 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 				"id": n
 			});
 		}
+		this.setSize = function(w, h) {
+			canvas.setWidth(w);
+			canvas.setHeight(h);
+			canvas.renderAll();
+			Canvas.setSize(w, h)
+		}
+		this.setCursor = function(css) {
+			canvas.defaultCursor = css;
+		}
+		this.loadData = function(data) {
+			function setObject(obj) {
+				self.disableMove(obj);
+				obj.set({
+					id: data.id
+					// 	originX: 'center',
+					// 	originY: 'center'
+				});
+				if (current instanceof fabric.Group) {
+					self.enableMove(current);
+					current.addWithUpdate(obj);
+				} else {
+					current.add(obj);
+				}
+			}
+			// console.log(data);
+			var object = data;
+			if (object && object.type) {
+				var klass = fabric.util.getKlass(object.type);
+				if (klass.async) {
+					klass.fromObject(object, function(obj) {
+						setObject(obj);
+					});
+				} else {
+					var obj = klass.fromObject(object);
+					setObject(obj);
+				}
+			}
+		}
+		this.toObject = function(obj) {
+			obj.toObject = (function(toObject) {
+				return function() {
+					return fabric.util.object.extend(toObject.call(this), {
+						id: this.id,
+						canvasWidth: canvas.getWidth(),
+						canvasHeight: canvas.getHeight()
+					});
+				};
+			})(obj.toObject);
+			return obj.toObject();
+		}
+		this.lazyUpdate = function(isLazy) {
+			canvas.renderOnAddRemove = !isLazy;
+		}
+		this.update = function() {
+			canvas.renderAll();
+		}
+		this.clearAll = function() {
+			group = {};
+			obj = {};
+			n = 0;
+		}
 		this.getName = function() {
 			return id;
 		};
@@ -57,19 +118,19 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			// Canvas.init(name);
 			// Canvas.getCanvas().then(function(cs) {
 			// 	canvas = cs;
-				canvas.selection = false;
-				canvas.defaultCursor = "crosshair";
-				canvas.on("object:selected", function(e) {
-					var obj = e.target;
-					obj.set('hasControls', true);
-					obj.set('hasRotatingPoint', true);
-				});
-				canvas.on("selection:created", function(e) {
-					var obj = e.target;
-					obj.set('hasControls', false);
-					obj.set('hasRotatingPoint', false);
-				});
-				self.newObject(name);
+			canvas.selection = false;
+			canvas.defaultCursor = "crosshair";
+			canvas.on("object:selected", function(e) {
+				var obj = e.target;
+				obj.set('hasControls', true);
+				obj.set('hasRotatingPoint', true);
+			});
+			canvas.on("selection:created", function(e) {
+				var obj = e.target;
+				obj.set('hasControls', false);
+				obj.set('hasRotatingPoint', false);
+			});
+			self.newObject(name);
 			// });
 		};
 		this.newObject = function(name) {
@@ -132,52 +193,9 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			});
 			canvas.renderAll();
 		};
-		this.draw = function(data, x, y, scale) {
-			var paths = [];
-			angular.forEach(data.path, function(value, key) {
-				paths.push(value.join(" "));
-			});
-			paths = paths.join(" ");
-			var path = new fabric.Path(paths);
-			var scaleX = self.getScale().x / scale.x;
-			var scaleY = self.getScale().y / scale.y;
-			var scale = Math.min(scaleX, scaleY);
-			path.set({
-				left: x,
-				top: y,
-				originX: 'center',
-				originY: 'center',
-				fill: null,
-				stroke: data.stroke,
-				strokeWidth: data.strokeWidth,
-				strokeLineCap: data.strokeLineCap,
-				strokeLineJoin: data.strokeLineJoin
-			});
-			path.scale(scale);
-			self.disableMove(path);
-
-			if (current instanceof fabric.Group) {
-				// var x = current.get("moveX"),
-				// 	y = current.get("moveY");
-				// if (x && y) {
-				// 	path.set({
-				// 		left: path.getLeft() + x,
-				// 		top: path.getTop() + y
-				// 	});
-				// }
-				current.addWithUpdate(path);
-				// if (!current.get("initX") && !current.get("initY")) {
-				// 	current.set({
-				// 		"initX": current.getLeft(),
-				// 		"initY": current.getTop()
-				// 	});
-				// }
-			} else {
-				canvas.remove(data);
-				canvas.add(path);
-			}
-			setId(path);
-			canvas.renderAll();
+		this.draw = function(data) {
+			setId(data);
+			// canvas.renderAll();
 		};
 		this.setDraw = function() {
 			canvas.isDrawingMode = true;
@@ -191,6 +209,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 		};
 
 		this.drawLine = function(x, y, isSeed, isUp) {
+			var result;
 			if (isSeed) {
 				xPos = x;
 				yPos = y;
@@ -198,10 +217,10 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 				if (xPos && yPos) {
 					current.remove(line);
 					line = new fabric.Line([xPos, yPos, x, y], lineOption);
-					line.set({
-						originX: 'center',
-						originY: 'center'
-					});
+					// line.set({
+					// 	originX: 'center',
+					// 	originY: 'center'
+					// });
 					if (current instanceof fabric.Group) {
 						current.addWithUpdate(line);
 					} else {
@@ -211,6 +230,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 					self.disableMove(line);
 					// canvas.calcOffset();
 					canvas.renderAll();
+					result = line;
 				}
 				if (isUp) {
 					line = null;
@@ -218,6 +238,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 					yPos = null;
 				}
 			}
+			return result;
 		};
 
 		this.drawText = function(txt, x, y) {
@@ -235,6 +256,7 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 			self.disableMove(text);
 			canvas.calcOffset();
 			canvas.renderAll();
+			return text;
 		};
 
 		this.setStrokeColor = function(color) {
@@ -296,7 +318,11 @@ app.service("DrawManager", ["Canvas", "$rootScope",
 					// 		"moveY": e.target.getTop() - groups[id].get("initY")
 					// 	});
 					// });
-
+					groups[id].set({
+						originX: 'center',
+						originY: 'center',
+						"id": id
+					});
 					self.disableMove(groups[id]);
 					canvas.add(groups[id]);
 				}

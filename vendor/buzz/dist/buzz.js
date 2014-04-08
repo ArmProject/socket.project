@@ -485,7 +485,7 @@
                 source.src = src;
                 if (buzz.types[getExt(src)]) {
                     source.type = buzz.types[getExt(src)];
-                }
+                }        
                 sound.appendChild(source);
             }
             if (supported && src) {

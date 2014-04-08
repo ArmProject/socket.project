@@ -11,14 +11,14 @@ module.exports = function(karma) {
 		files: [
 			// <% scripts.forEach( function ( file ) { %>'<%= file %>',
 			// <% }); %>
-			// 'src/**/*.spec.js'
+			'src/app/*.spec.js'
 		],
 
 		exclude: [
 			// 'src/**/*.spec.js',
 			'src/server/**/*.js'
 		],
-		frameworks: ['ng-scenario'],
+		frameworks: ['ng-scenario', 'jasmine'],
 		plugins: ['karma-ng-scenario','karma-jasmine', 'karma-chrome-launcher'],
 
 		/**
@@ -32,10 +32,10 @@ module.exports = function(karma) {
 		 */
 		port: 9876,
 		runnerPort: 9100,
-		// proxies: {
-		// 	'/': 'http://localhost/socket'
-		// },
-		// urlRoot: '/__karma__/',
+		proxies: {
+			'/': 'http://localhost/socket/#main'
+		},
+		urlRoot: '/__karma__/',
 		/** 
 		 * Disable file watching by default.
 		 */
@@ -55,8 +55,8 @@ module.exports = function(karma) {
 		 * the aesthetic advantage of not launching a browser every time you save.
 		 */
 
-		// browsers: [
-		//   'Firefox'
-		// ]
+		browsers: [
+		  'Chrome'
+		]
 	});
 };

@@ -1,3 +1,48 @@
+app.controller('MainCtrl', ["$q", "$scope", "Canvas", "DrawManager", "SlideManager", "PDFService",
+	function($q, $scope, Canvas, DrawManager, SlideManager, PDFService) {
+		function loadCanvas(name) {
+			var id = "data";
+			var cs = Canvas.newCanvas(id, Canvas.width, Canvas.height);
+			DrawManager.getObject(cs, name);
+			return cs;
+		}
+		$scope.$on('load_slide', function(e, id) {
+			DrawManager.clearAll();
+
+			var deferred = $q.defer();
+			SlideManager.setMax(deferred);
+			PDFService.getPdf(id).then(function(pdf) {
+				$scope.pdf = pdf;
+				deferred.resolve(pdf, pdf.pdfInfo.numPages);
+			});
+		});
+		$scope.$on('save_slide', function(e, obj) {
+			var pdf = $scope.pdf;
+			var n = obj.n || pdf.pdfInfo.numPages;
+			var mirrors = [];
+			for (var i = 1; i <= n; i++) {
+				var cs = loadCanvas(Canvas.types.MIRROR + "-" + i);
+				mirrors.push(cs);
+			}
+
+			PDFService.init(mirrors);
+			if (obj.type == 'image') {
+				PDFService.renderImage(pdf, n, function(data, index) {
+					if (obj.callback) {
+						obj.callback(data, index);
+					}
+				});
+			} else {
+				PDFService.renderPdf(pdf, n).then(function(data) {
+					if (obj.callback) {
+						obj.callback(data);
+					}
+				});
+			}
+
+		});
+	}
+]);
 app.controller('LoginCtrl', ["$scope", "$state", "GoogleService", "LoginManager",
 	function($scope, $state, GoogleService, LoginManager) {
 		GoogleService.load().then(function() {
@@ -52,7 +97,7 @@ app.controller('MenuLeftCtrl', ["$scope", "$sce", "$timeout", "$window", "Room",
 					});
 				}
 				VoiceManager.stop(SlideManager.index);
-				SlideManager.index++;
+				// SlideManager.index++;
 				cfpLoadingBar.start();
 				$scope.$broadcast('save_slide', {
 					type: 'image',
@@ -82,45 +127,6 @@ app.controller('MenuLeftCtrl', ["$scope", "$sce", "$timeout", "$window", "Room",
 		};
 	}
 ]);
-app.controller('MainCtrl', ["$scope", "Canvas", "DrawManager", "SlideManager", "PDFService",
-	function($scope, Canvas, DrawManager, SlideManager, PDFService) {
-		function loadCanvas(name) {
-			var id = "data";
-			var cs = Canvas.newCanvas(id, Canvas.width, Canvas.height);
-			DrawManager.getObject(cs, name);
-			return cs;
-		}
-		$scope.$on('save_slide', function(e, obj) {
-			var id = SlideManager.slide;
-			if (id) {
-				PDFService.getPdf(id).then(function(pdf) {
-
-					var n = obj.n || pdf.pdfInfo.numPages;
-					var mirrors = [];
-					for (var i = 1; i <= n; i++) {
-						var cs = loadCanvas(Canvas.types.MIRROR + "-" + i);
-						mirrors.push(cs);
-					}
-
-					PDFService.init(mirrors);
-					if (obj.type == 'image') {
-						PDFService.renderImage(pdf, n, function(data, index) {
-							if (obj.callback) {
-								obj.callback(data, index);
-							}
-						});
-					} else {
-						PDFService.renderPdf(pdf, n).then(function(data) {
-							if (obj.callback) {
-								obj.callback(data);
-							}
-						});
-					}
-				});
-			}
-		});
-	}
-]);
 app.controller('AccessCtrl', ["$state", "LoginManager",
 	function($state, LoginManager) {
 		var route = $state.current.name;
@@ -130,32 +136,32 @@ app.controller('AccessCtrl', ["$state", "LoginManager",
 		});
 	}
 ]);
-app.controller('MenuRightCtrl', ["$scope", "$rootScope", "$state",
-	function($scope, $rootScope, $state) {
-		// var menu = ["Chat", "Group"];
-		var types = {
-			GROUP: "group",
-			CHAT: "chat"
-		};
-		// checkRoute();
-		$rootScope.$on("$stateChangeSuccess", function($currentRoute, $previousRoute) {
-			checkRoute();
-		});
-		$scope.setCurrent = function(index) {
-			$scope.current = $scope.menus[index];
-		};
+// app.controller('MenuRightCtrl', ["$scope", "$rootScope", "$state",
+// 	function($scope, $rootScope, $state) {
+// 		// var menu = ["Chat", "Group"];
+// 		var types = {
+// 			GROUP: "group",
+// 			CHAT: "chat"
+// 		};
+// 		// checkRoute();
+// 		$rootScope.$on("$stateChangeSuccess", function($currentRoute, $previousRoute) {
+// 			checkRoute();
+// 		});
+// 		$scope.setCurrent = function(index) {
+// 			$scope.current = $scope.menus[index];
+// 		};
 
-		function checkRoute() {
-			var route = $state.current.url;
-			console.log(route)
-			// $scope.isHide = route == "/home/teacher" || route == "/home/student";
-			switch (route) {
-				case "/draw":
-					$scope.current = types.GROUP;
-					break;
-				default:
-					$scope.current = types.CHAT;
-			}
-		}
-	}
-]);
+// 		function checkRoute() {
+// 			var route = $state.current.url;
+// 			console.log(route)
+// 			// $scope.isHide = route == "/home/teacher" || route == "/home/student";
+// 			switch (route) {
+// 				case "/draw":
+// 					$scope.current = types.GROUP;
+// 					break;
+// 				default:
+// 					$scope.current = types.CHAT;
+// 			}
+// 		}
+// 	}
+// ]);

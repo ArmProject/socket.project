@@ -12,7 +12,7 @@ app.directive('drivePlayer', ["$rootScope", "cfpLoadingBar", "DataManager", "Pla
 							title: name
 						});
 					});
-					console.log(scope.datas);
+					// console.log(scope.datas);
 				})
 				$rootScope.$watch('playerSelected', function() {
 					scope.selected = $rootScope.playerSelected;
@@ -82,13 +82,8 @@ app.directive('driveSlide', ["$rootScope", "$q", "cfpLoadingBar", "GoogleService
 					SlideManager.setSlide(id);
 					scope.id = id;
 					$rootScope.slideSelected = id;
+					scope.$emit('load_slide', id);
 
-					var deferred = $q.defer();
-					SlideManager.setMax(deferred);
-					PDFService.getPdf(scope.id).then(function(pdf) {
-						scope.pdf = pdf;
-						deferred.resolve(pdf.pdfInfo.numPages);
-					});
 				};
 
 				scope.toDate = function(date) {

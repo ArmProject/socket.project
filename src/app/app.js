@@ -61,16 +61,19 @@ app.config(["$stateProvider", "$urlRouterProvider",
 		});
 
 	}
-]).run(["$rootScope", "$modal", "LoginManager", "cfpLoadingBar",
-	function($rootScope, $modal, LoginManager, cfpLoadingBar) {
+]).run(["$rootScope", "$modal", "LoginManager", "cfpLoadingBar", "Socket",
+	function($rootScope, $modal, LoginManager, cfpLoadingBar, Socket) {
 		$rootScope.$on("$stateChangeSuccess", function($currentRoute, $previousRoute) {
 			if (LoginManager.hasLogin()) {
 				$modal.open({
 					templateUrl: 'main/template/login.tpl.html',
+					keyboard: false,
+					backdrop: 'static',
 					controller: 'LoginCtrl'
 				});
 			}
 			cfpLoadingBar.complete();
+			Socket.remove();
 		});
 	}
 ]);
@@ -99,13 +102,18 @@ app.factory('Socket', ["$rootScope", "host_node",
 				socket.disconnect();
 			},
 			remove: function(event) {
-				socket.removeAllListeners(event);
+				if (event) {
+					socket.removeAllListeners(event);
+				} else {
+					socket.removeAllListeners();
+				}
 			}
 		};
 	}
 ]);
 app.factory("Room", function() {
 	return {
+		id:"",
 		room: "",
 		users: [],
 		groups: {}
@@ -120,13 +128,13 @@ app.factory("DataManager", ["Canvas", "Socket",
 				QUIZ: "quiz",
 				MSG: "msg"
 			},
-			initData: function(type) {
-				Socket.emit("init:" + type);
+			initData: function(type, data) {
+				Socket.emit("init:" + type, data);
 			},
 			setData: function(type, data) {
-				if (data && data.pos) {
-					data.pos.x /= Canvas.width;
-					data.pos.y /= Canvas.height;
+				if (data && data.data) {
+					data.data.left /= Canvas.width;
+					data.data.top /= Canvas.height;
 				}
 				Socket.emit("send:" + type, data);
 			},
@@ -138,9 +146,13 @@ app.factory("DataManager", ["Canvas", "Socket",
 					case "pos":
 						Socket.on("send:" + type, function(data) {
 							function scalePos(data) {
-								if (data && data.pos) {
-									data.pos.x *= Canvas.width;
-									data.pos.y *= Canvas.height;
+								if (data && data.data) {
+									var ratioX = Canvas.width / data.data.canvasWidth;
+									var ratioY = Canvas.height / data.data.canvasHeight;
+									data.data.scaleX *= ratioX;
+									data.data.scaleY *= ratioY;
+									data.data.left *= Canvas.width;
+									data.data.top *= Canvas.height;
 								}
 							}
 
@@ -215,14 +227,8 @@ app.service("Canvas", ["$q",
 			return canvas;
 		};
 		this.setSize = function(w, h) {
-			// if (canvas) {
-			// 	canvas.setDimensions({
-			// 		width: w,
-			// 		height: h
-			// 	})
-			// 	self.width = w;
-			// 	self.height = h;
-			// }
+			self.width = w;
+			self.height = h;
 		}
 		this.getCanvas = function() {
 			// if (canvas) {
